@@ -1,7 +1,3 @@
-/// <reference types="react" />
-/// <reference types="react-dom" />
-/// <reference types="next" />
-/// <reference types="next/image-types/global" />
 
 declare namespace React {
   type ReactNode = import('react').ReactNode;
@@ -152,8 +148,8 @@ declare module "next/image" {
 declare module "tailwind-merge" {
   export function twMerge(...classes: (string | undefined | null | false)[]): string;
   export function twJoin(...classes: (string | undefined | null | false)[]): string;
-  export function getDefaultConfig(): any;
-  export function extend(config: any): any;
+  export function getDefaultConfig(): Record<string, unknown>;
+  export function extend(config: Record<string, unknown>): Record<string, unknown>;
 }
 
 declare module "clsx" {
