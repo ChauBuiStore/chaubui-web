@@ -1,0 +1,15 @@
+export const ROUTER = {
+  HOME: "/",
+  COLLECTIONS: "/collections",
+  PRODUCT: "/products",
+  CART: "/cart",
+  CHECKOUT: "/checkout",
+  CHECKOUT_SUCCESS: "/checkout/success",
+  CHECKOUT_FAILED: "/checkout/failed",
+  REGISTER: "/register",
+  LOGIN: "/login",
+  ACCOUNT: "/account",
+  ACCOUNT_ADDRESS: "/account/address",
+  ACCOUNT_ORDERS: "/account/orders",
+  SEARCH: "/search",
+};

@@ -90,6 +90,8 @@ declare module "next" {
       yahoo?: string;
       other?: Record<string, string>;
     };
+    manifest?: string;
+    other?: Record<string, string>;
   }
 }
 
