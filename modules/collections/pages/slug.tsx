@@ -14,6 +14,9 @@ interface CollectionsSlugPageProps {
   isAllProducts?: boolean;
   meta?: PaginationMeta;
   locale: string;
+  categoryGroupSlug?: string;
+  categorySlug?: string;
+  isCategoryGroup?: boolean;
 }
 
 export function CollectionsSlugPage({
@@ -23,6 +26,9 @@ export function CollectionsSlugPage({
   isAllProducts = false,
   meta,
   locale,
+  categoryGroupSlug,
+  categorySlug,
+  isCategoryGroup,
 }: CollectionsSlugPageProps) {
   const t = useTranslations();
   const menuItems = createProductMenuItems(categoryGroups, t);
@@ -51,6 +57,9 @@ export function CollectionsSlugPage({
           initialProducts={products}
           initialMeta={meta}
           locale={locale}
+          categoryGroupSlug={categoryGroupSlug}
+          categorySlug={categorySlug}
+          categoryGroups={isCategoryGroup}
         />
       </section>
     </XPage>

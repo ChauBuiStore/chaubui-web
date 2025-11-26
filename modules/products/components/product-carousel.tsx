@@ -72,19 +72,35 @@ export function ProductCarousel({ images }: ProductCarouselProps) {
           <div className="p-0">
             <div ref={imageScrollRef} className="hidden md:flex flex-col gap-4 h-full">
               {images.map((image, index) => (
-                <div key={index} data-image-index={index} className="relative w-full flex-shrink-0 flex items-center justify-center">
-                  <ProductImage image={image} index={index} />
+                <div 
+                  key={index} 
+                  data-image-index={index} 
+                  className="relative w-full aspect-square flex-shrink-0 flex items-center justify-center"
+                >
+                  <ProductImage 
+                    image={image} 
+                    index={index}
+                    sizes="(max-width: 1200px) 50vw, 700px"
+                  />
                 </div>
               ))}
             </div>
-            <div className="md:hidden relative h-[250px] overflow-hidden">
+            <div className="md:hidden relative aspect-square overflow-hidden rounded-lg">
               <div
                 className="flex transition-transform duration-300 ease-in-out h-full"
                 style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
               >
                 {images.map((image, index) => (
-                  <div key={index} className="w-full h-full flex-shrink-0 flex items-center justify-center">
-                    <ProductImage image={image} index={index} />
+                  <div 
+                    key={index} 
+                    className="w-full h-full flex-shrink-0 flex items-center justify-center"
+                  >
+                    <ProductImage 
+                      image={image} 
+                      index={index}
+                      sizes="100vw"
+                      quality={index === currentImageIndex ? 90 : 85}
+                    />
                   </div>
                 ))}
               </div>

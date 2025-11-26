@@ -165,7 +165,7 @@ export default async function CollectionSlugPageRoot({
   const totalItems = filteredProducts.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const currentPage = 1;
-  
+
   const products = filteredProducts.slice(0, itemsPerPage);
 
   const meta = {
@@ -182,11 +182,15 @@ export default async function CollectionSlugPageRoot({
   const category = categoryGroups
     .flatMap((cg) => cg.categories || [])
     .find((c) => c.slug === collectionSlug);
-  
+
   const collectionName =
     category?.name ||
     categoryGroup?.name ||
     collectionSlug;
+
+  const isCategoryGroup = !!categoryGroup;
+  const categoryGroupSlug = isCategoryGroup ? collectionSlug : undefined;
+  const categorySlug = category ? collectionSlug : undefined;
 
   const breadcrumbItems = [
     {
@@ -220,6 +224,9 @@ export default async function CollectionSlugPageRoot({
         locale={locale}
         isAllProducts={false}
         meta={meta}
+        categoryGroupSlug={categoryGroupSlug}
+        categorySlug={categorySlug}
+        isCategoryGroup={isCategoryGroup}
       />
     </>
   );

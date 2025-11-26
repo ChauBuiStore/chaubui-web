@@ -11,18 +11,27 @@ interface CollectionsListProps {
   initialProducts: Product[];
   initialMeta?: PaginationMeta;
   locale: string;
+  categoryGroupSlug?: string;
+  categorySlug?: string;
+  categoryGroups?: boolean;
 }
 
 export function CollectionsList({
   initialProducts,
   initialMeta,
   locale,
+  categoryGroupSlug,
+  categorySlug,
+  categoryGroups,
 }: CollectionsListProps) {
   const t = useTranslations('product');
   const { products, isLoading, hasMore, handleLoadMore } = useLoadMoreProducts({
     initialProducts,
     initialMeta,
     locale,
+    categoryGroupSlug,
+    categorySlug,
+    categoryGroups,
   });
 
   if (products.length === 0 && !isLoading) {
