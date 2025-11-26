@@ -15,13 +15,8 @@ export const size = {
 export const contentType = 'image/png';
 
 const getCachedProduct = cache(async (productSlug: string, locale: string) => {
-  const response = await productService.getProducts({ locale });
-  const product = response.data?.find((p) => p.slug === productSlug);
-
-  if (!product) return null;
-
-  const productDetailResponse = await productService.getProductById(product.id, locale);
-  return productDetailResponse.data;
+  const productDetailResponse = await productService.getProductById(productSlug, locale);
+  return productDetailResponse.data ?? null;
 });
 
 export default async function Image({

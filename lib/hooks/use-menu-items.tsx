@@ -47,7 +47,7 @@ export function useMenuItems(): UseMenuItemsReturn {
   } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_GROUPS, locale],
     queryFn: async () => {
-      return await categoryGroupService.getCategoryGroups({ isAll: true }, locale);
+      return await categoryGroupService.getCategoryGroups(undefined, locale);
     },
   });
 
