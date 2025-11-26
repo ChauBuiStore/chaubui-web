@@ -67,7 +67,7 @@ export function XMenu({
       <div key={itemKey}>
         <div
           className={cn(
-            "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors cursor-pointer",
+            "flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors",
             "hover:text-primary hover:bg-accent",
             "font-bold uppercase",
             level > 0 && "ml-4 hover:text-muted-foreground font-normal"
