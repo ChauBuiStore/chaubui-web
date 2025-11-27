@@ -4,6 +4,7 @@ import { ROUTER } from "@/lib/constants";
 import { routing } from "@/lib/i18n";
 import { categoryGroupService } from "@/lib/services/category-group.service";
 import { productService } from "@/lib/services/product.service";
+import { TransformedCategoryGroup, TransformCategory } from "@/lib/types";
 import { truncateDescription, truncateTitle } from "@/lib/utils";
 import { CollectionsSlugPage } from "@/modules/collections/pages";
 import type { Metadata } from "next";
@@ -62,11 +63,11 @@ const getCachedCategoryGroups = cache(async (locale: string) => {
 });
 
 function createLookupMaps(categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>>) {
-  const categoryGroupMap = new Map(
-    categoryGroups.map((cg) => [cg.slug, cg])
+  const categoryGroupMap = new Map<string, TransformedCategoryGroup>(
+    categoryGroups.map((cg: TransformedCategoryGroup) => [cg.slug, cg])
   );
 
-  const categoryMap = new Map();
+  const categoryMap = new Map<string, TransformCategory>();
   for (const cg of categoryGroups) {
     if (cg.categories) {
       for (const category of cg.categories) {
@@ -168,21 +169,31 @@ export default async function CollectionSlugPageRoot({
   const categoryGroup = categoryGroupMap.get(collectionSlug);
   const category = categoryMap.get(collectionSlug);
 
-  const categoryGroupSlug = categoryGroup ? collectionSlug : undefined;
-  const categorySlugParam = category ? collectionSlug : undefined;
-
-  const itemsPerPage = 10;
-  const productsResponse = await productService.getProducts({
+  const productParams: {
+    locale: string;
+    page: number;
+    limit: number;
+    categoryGroupSlug?: string;
+    categorySlug?: string;
+  } = {
     locale,
     page: 1,
-    limit: itemsPerPage,
-    categoryGroupSlug,
-    categorySlug: categorySlugParam,
-  });
+    limit: 10,
+  };
+
+  if (category) {
+    productParams.categorySlug = collectionSlug;
+  } else if (categoryGroup) {
+    productParams.categoryGroupSlug = collectionSlug;
+  } else {
+    productParams.categorySlug = collectionSlug;
+  }
+
+  const productsResponse = await productService.getProducts(productParams);
 
   const products = productsResponse.data || [];
   const meta = productsResponse.meta || {
-    itemsPerPage,
+    itemsPerPage: productParams.limit,
     totalItems: products.length,
     currentPage: 1,
     totalPages: 1,
@@ -228,8 +239,8 @@ export default async function CollectionSlugPageRoot({
         locale={locale}
         isAllProducts={false}
         meta={meta}
-        categoryGroupSlug={categoryGroupSlug}
-        categorySlug={categorySlugParam}
+        categoryGroupSlug={productParams.categoryGroupSlug}
+        categorySlug={productParams.categorySlug}
       />
     </>
   );
