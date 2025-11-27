@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { QUERY_KEYS } from "@/lib/constants";
 import { productService } from "@/lib/services/product.service";
 import { PaginationMeta, ApiResponse } from "@/lib/types";
@@ -93,13 +93,33 @@ export function useLoadMoreProducts({
     }
   }, [error, toast, t]);
 
-  const products =
-    data?.pages.flatMap((page: ApiResponse<Product[]>) => page.data || []) ||
-    initialProducts;
+  const [uniqueProducts, setUniqueProducts] = useState<Product[]>(() => {
+    const productMap = new Map<string, Product>();
+    initialProducts.forEach((product) => {
+      productMap.set(product.id, product);
+    });
+    return Array.from(productMap.values());
+  });
 
-  const uniqueProducts = Array.from(
-    new Map(products.map((product: Product) => [product.id, product])).values()
-  );
+  useEffect(() => {
+    const allProducts = data?.pages
+      ? data.pages.flatMap((page: ApiResponse<Product[]>) => page.data || [])
+      : initialProducts;
+
+    const productMap = new Map<string, Product>();
+    allProducts.forEach((product) => {
+      productMap.set(product.id, product);
+    });
+    const newUniqueProducts = Array.from(productMap.values());
+
+    setUniqueProducts((prevProducts) => {
+      if (newUniqueProducts.length !== prevProducts.length) {
+        return newUniqueProducts;
+      }
+      const hasChanged = newUniqueProducts.some((p, i) => p.id !== prevProducts[i]?.id);
+      return hasChanged ? newUniqueProducts : prevProducts;
+    });
+  }, [data?.pages, initialProducts]);
 
   const hasMore =
     hasNextPage ??

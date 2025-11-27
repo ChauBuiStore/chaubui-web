@@ -55,7 +55,7 @@ export function CollectionsList({
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {products.map((product, index) => (
           <XProduct
-            key={`${product.id}-${index}`}
+            key={product.id}
             product={product}
             priority={index < 4}
           />

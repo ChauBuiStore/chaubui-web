@@ -42,7 +42,7 @@ export function SearchList({
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-8">
         {products.map((product: Product, index: number) => (
           <XProduct
-            key={`${product.id}-${index}`}
+            key={product.id}
             product={product}
             priority={index < 3}
           />

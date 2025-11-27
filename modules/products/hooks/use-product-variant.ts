@@ -7,9 +7,34 @@ export function useProductVariant(product: Product) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
 
   const currentStock = selectedVariant?.stock ?? product.stock;
   const isOutOfStock = currentStock === 0 || currentStock === undefined || currentStock === null;
+
+  // Cache availableColors và availableSizes để tránh tính toán lại mỗi lần render
+  useEffect(() => {
+    if (product?.variants?.length) {
+      const colors = new Set<string>();
+      const sizes = new Set<string>();
+      
+      product.variants.forEach((v: ProductVariant) => {
+        if (v.color?.code) {
+          colors.add(v.color.code);
+        }
+        if (v.size?.name) {
+          sizes.add(v.size.name);
+        }
+      });
+      
+      setAvailableColors(Array.from(colors));
+      setAvailableSizes(Array.from(sizes));
+    } else {
+      setAvailableColors([]);
+      setAvailableSizes([]);
+    }
+  }, [product]);
 
   useEffect(() => {
     if (product?.variants?.length) {
@@ -41,22 +66,6 @@ export function useProductVariant(product: Product) {
   useEffect(() => {
     setQuantity(1);
   }, [selectedColor, selectedSize]);
-
-  const availableColors = Array.from(
-    new Set(
-      product.variants
-        .map((v: ProductVariant) => v.color?.code || "")
-        .filter(Boolean)
-    )
-  ) as string[];
-
-  const availableSizes = Array.from(
-    new Set(
-      product.variants
-        .map((v: ProductVariant) => v.size?.name || "")
-        .filter(Boolean)
-    )
-  ) as string[];
 
   const getAvailableSizes = (colorCode: string) => {
     return getAvailableSizesForColor(product.variants, colorCode);

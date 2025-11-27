@@ -2,8 +2,8 @@
 
 import { XButton, XQuantity } from "@/components/common";
 import { useTranslations } from "@/lib/hooks";
-import { parseHTML } from "@/lib/utils";
 import { useProductVariant, useAddToCart } from "../hooks";
+import { useEffect, useState } from "react";
 import {
   getColorButtonData,
   getSizeButtonData,
@@ -17,6 +17,49 @@ import {
 import { ProductPriceDisplay } from "./product-price-display";
 import { ShoppingCart } from "lucide-react";
 import { Product } from "../types";
+
+// Lazy load HTML parser để giảm bundle size
+function ProductDescription({ description }: { description: string }) {
+  const [parsedContent, setParsedContent] = useState<React.ReactNode>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const t = useTranslations("product");
+
+  useEffect(() => {
+    if (!description) {
+      setParsedContent(null);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    // Dynamic import html-react-parser chỉ khi cần
+    Promise.all([
+      import("html-react-parser"),
+      import("@/lib/utils/sanitize.utils")
+    ]).then(([{ default: parse }, { parseHTML }]) => {
+      setParsedContent(parseHTML(description));
+      setIsLoading(false);
+    }).catch(() => {
+      setParsedContent(description);
+      setIsLoading(false);
+    });
+  }, [description]);
+
+  if (!description) return null;
+
+  return (
+    <div className="mt-8">
+      <h3 className="text-lg font-semibold mb-4">{t("description")}</h3>
+      <div className="prose prose-sm max-w-none">
+        {isLoading ? (
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        ) : (
+          parsedContent
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface ProductInfoProps {
   product: Product;
@@ -136,12 +179,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         {isOutOfStock ? t("outOfStock") : t("addToCart")}
       </XButton>
 
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold mb-4">{t("description")}</h3>
-        <div className="prose prose-sm max-w-none">
-          {parseHTML(product.description || "")}
-        </div>
-      </div>
+      <ProductDescription description={product.description || ""} />
     </>
   );
 }

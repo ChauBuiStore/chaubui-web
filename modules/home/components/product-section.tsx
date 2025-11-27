@@ -11,7 +11,7 @@ interface ProductSectionProps {
 
 export function ProductSection({ id, title }: ProductSectionProps) {
 	const { data: productsResponse, isLoading } = useQuery({
-		queryKey: [QUERY_KEYS.PRODUCTS],
+		queryKey: [QUERY_KEYS.PRODUCTS, id],
 		queryFn: () => productService.getProducts(),
 	});
 
