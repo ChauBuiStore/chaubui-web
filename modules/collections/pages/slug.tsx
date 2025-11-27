@@ -40,8 +40,8 @@ export function CollectionsSlugPage({
     <XPage breadcrumbItems={breadcrumbs}>
       <section aria-labelledby="collection-title" className="space-y-8 py-6 md:py-8">
         <div className="space-y-2">
-          <h1 
-            id="collection-title" 
+          <h1
+            id="collection-title"
             className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
           >
             {pageTitle}
@@ -59,7 +59,6 @@ export function CollectionsSlugPage({
           locale={locale}
           categoryGroupSlug={categoryGroupSlug}
           categorySlug={categorySlug}
-          categoryGroups={isCategoryGroup}
         />
       </section>
     </XPage>

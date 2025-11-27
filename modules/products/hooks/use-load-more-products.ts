@@ -14,7 +14,6 @@ interface UseLoadMoreProductsParams {
   searchQuery?: string;
   categoryGroupSlug?: string;
   categorySlug?: string;
-  categoryGroups?: boolean;
 }
 
 export function useLoadMoreProducts({
@@ -24,7 +23,6 @@ export function useLoadMoreProducts({
   searchQuery,
   categoryGroupSlug,
   categorySlug,
-  categoryGroups,
 }: UseLoadMoreProductsParams) {
   const toast = useToast();
   const t = useTranslations("product");
@@ -36,7 +34,6 @@ export function useLoadMoreProducts({
     searchQuery,
     categoryGroupSlug,
     categorySlug,
-    categoryGroups,
   ];
 
   const {
@@ -55,8 +52,7 @@ export function useLoadMoreProducts({
         locale,
         searchQuery,
         categoryGroupSlug,
-        categorySlug,
-        categoryGroups
+        categorySlug
       );
 
       return await productService.getProducts(params);

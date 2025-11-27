@@ -1,18 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "@/lib/hooks";
+import { usePathname } from "@/lib/i18n/routing";
+import { useRouter } from "@/lib/i18n/routing";
+import { ROUTER } from "@/lib/constants";
 
 export function useSearchPage(initialSearch: string) {
   const { filters, setFilter } = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const [inputValue, setInputValue] = useState(
     (filters.search as string) || initialSearch || ""
   );
 
+  useEffect(() => {
+    if (initialSearch !== inputValue) {
+      setInputValue(initialSearch || "");
+    }
+  }, [initialSearch]);
+
   const handleSearch = () => {
     if (!inputValue || !inputValue.trim()) {
-      setFilter({ search: undefined, page: undefined, limit: undefined });
+      if (pathname === ROUTER.SEARCH) {
+        setFilter({ search: undefined, page: undefined, limit: undefined });
+      } else {
+        router.push(ROUTER.SEARCH);
+      }
       return;
     }
-    setFilter({ search: inputValue.trim() });
+
+    if (pathname === ROUTER.SEARCH) {
+      setFilter({ search: inputValue.trim() });
+    } else {
+      router.push(`${ROUTER.SEARCH}?search=${encodeURIComponent(inputValue.trim())}`);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

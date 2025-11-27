@@ -1,7 +1,7 @@
 "use client";
 
 import { XButton, XInput, XPopover } from "@/components/common";
-import { QUERY_KEYS } from "@/lib/constants";
+import { PAGINATION, QUERY_KEYS } from "@/lib/constants";
 import { useDebounce, useTranslations } from "@/lib/hooks";
 import { productService } from "@/lib/services/product.service";
 import { useQuery } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ export function SearchHeader({ isMobile = false }: SearchHeaderProps) {
     resetKeyword,
     handleSearch,
     handleViewAll,
+    getSearchUrl,
     handleOpenChange,
     handleKeyDown,
     handleInputChange,
@@ -41,6 +42,7 @@ export function SearchHeader({ isMobile = false }: SearchHeaderProps) {
       }
       return await productService.getProducts({
         search: debouncedKeyword.trim(),
+        limit: PAGINATION.AUTOCOMPLETE_LIMIT,
       });
     },
     enabled: !!debouncedKeyword.trim(),
@@ -94,6 +96,7 @@ export function SearchHeader({ isMobile = false }: SearchHeaderProps) {
                 isMobile={true}
                 totalCount={totalCount}
                 onViewAll={handleViewAll}
+                searchUrl={getSearchUrl()}
               />
             </div>
           )}
@@ -152,6 +155,7 @@ export function SearchHeader({ isMobile = false }: SearchHeaderProps) {
               onProductSelect={handleProductSelect}
               totalCount={totalCount}
               onViewAll={handleViewAll}
+              searchUrl={getSearchUrl()}
             />
           </div>
         )}

@@ -29,6 +29,13 @@ export function useSearchHeader() {
     resetKeyword();
   };
 
+  const getSearchUrl = () => {
+    if (!keyword?.trim()) {
+      return ROUTER.SEARCH;
+    }
+    return `${ROUTER.SEARCH}?search=${encodeURIComponent(keyword.trim())}`;
+  };
+
   const handleViewAll = () => {
     handleSearch();
   };
@@ -64,6 +71,7 @@ export function useSearchHeader() {
     resetKeyword,
     handleSearch,
     handleViewAll,
+    getSearchUrl,
     handleOpenChange,
     handleKeyDown,
     handleInputChange,

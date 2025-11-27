@@ -80,13 +80,15 @@ export default async function ProductsPageRoot({
 }: ProductsPageRootProps) {
   const { locale } = await params;
 
-  const productsResponse = await productService.getProducts({ locale, page: 1, limit: 12 });
+  const [productsResponse, t] = await Promise.all([
+    productService.getProducts({ locale, page: 1, limit: 10 }),
+    getTranslations({ locale }),
+  ]);
 
   const products = productsResponse.data || [];
   const meta = productsResponse.meta;
 
   const baseUrl = APP_CONFIG.baseUrl;
-  const t = await getTranslations({ locale });
   const url = `${baseUrl}/${locale}${ROUTER.PRODUCT}`;
 
   const breadcrumbItems = [

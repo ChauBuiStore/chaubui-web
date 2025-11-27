@@ -2,6 +2,7 @@
 
 import { XButton } from "@/components/common";
 import { useTranslations } from "@/lib/hooks";
+import { Link } from "@/lib/i18n/routing";
 import { CornerUpLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -10,12 +11,12 @@ interface XBackButtonProps {
   href?: string;
   className?: string;
   variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
 }
 
 export function XBackButton({
@@ -29,12 +30,19 @@ export function XBackButton({
   const defaultText = t("backToHome");
 
   const handleGoBack = () => {
-    if (href) {
-      router.push(href);
-    } else {
-      router.back();
-    }
+    router.back();
   };
+
+  if (href) {
+    return (
+      <XButton variant={variant} asChild className={className}>
+        <Link href={href}>
+          <CornerUpLeft />
+          {text || defaultText}
+        </Link>
+      </XButton>
+    );
+  }
 
   return (
     <XButton variant={variant} onClick={handleGoBack} className={className}>

@@ -48,17 +48,25 @@ const getCachedProduct = cache(async (productSlug: string, locale: string) => {
   return productDetailResponse.data ?? null;
 });
 
+const getCachedCategoryGroups = cache(async (locale: string) => {
+  const categoryGroupsResponse = await categoryGroupService.getCategoryGroups({ isAll: true }, locale);
+  return categoryGroupsResponse.data || [];
+});
+
 export async function generateMetadata({
   params,
 }: ProductSlugPageRootProps): Promise<Metadata> {
   const { productSlug, locale } = await params;
-  const t = await getTranslations({ locale });
+
+  const [productDetail, t] = await Promise.all([
+    getCachedProduct(productSlug, locale),
+    getTranslations({ locale }),
+  ]);
+
   const siteName = t("seo.siteName");
   const baseUrl = APP_CONFIG.baseUrl;
 
   try {
-    const productDetail = await getCachedProduct(productSlug, locale);
-
     if (!productDetail) {
       return {
         title: `Product Not Found | ${siteName}`,
@@ -141,19 +149,17 @@ export default async function ProductSlugPageRoot({
 }: ProductSlugPageRootProps) {
   const { productSlug, locale } = await params;
 
-  const [product, categoryGroupsResponse] = await Promise.all([
+  const [product, categoryGroups, t] = await Promise.all([
     getCachedProduct(productSlug, locale),
-    categoryGroupService.getCategoryGroups({ isAll: true }, locale),
+    getCachedCategoryGroups(locale),
+    getTranslations({ locale }),
   ]);
-
-  const categoryGroups = categoryGroupsResponse.data || [];
 
   if (!product) {
     notFound();
   }
 
   const baseUrl = APP_CONFIG.baseUrl;
-  const t = await getTranslations({ locale });
 
   const collectionSlug = product.category?.slug || product.category?.group?.slug;
 

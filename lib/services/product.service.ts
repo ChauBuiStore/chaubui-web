@@ -8,6 +8,8 @@ interface ProductParams {
   page?: number;
   limit?: number;
   locale?: string;
+  categoryGroupSlug?: string;
+  categorySlug?: string;
 }
 
 export const productService = {

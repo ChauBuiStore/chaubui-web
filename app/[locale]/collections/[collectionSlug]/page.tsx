@@ -8,6 +8,7 @@ import { truncateDescription, truncateTitle } from "@/lib/utils";
 import { CollectionsSlugPage } from "@/modules/collections/pages";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { cache } from "react";
 
 interface CollectionSlugPageRootProps {
   params: Promise<{
@@ -52,27 +53,49 @@ export async function generateStaticParams() {
   return params;
 }
 
+const getCachedCategoryGroups = cache(async (locale: string) => {
+  const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
+    { isAll: true },
+    locale
+  );
+  return categoryGroupsResponse.data || [];
+});
+
+function createLookupMaps(categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>>) {
+  const categoryGroupMap = new Map(
+    categoryGroups.map((cg) => [cg.slug, cg])
+  );
+
+  const categoryMap = new Map();
+  for (const cg of categoryGroups) {
+    if (cg.categories) {
+      for (const category of cg.categories) {
+        categoryMap.set(category.slug, category);
+      }
+    }
+  }
+
+  return { categoryGroupMap, categoryMap };
+}
+
 export async function generateMetadata({
   params,
 }: CollectionSlugPageRootProps): Promise<Metadata> {
   const { collectionSlug, locale } = await params;
-  const t = await getTranslations({ locale });
+
+  const [categoryGroups, t] = await Promise.all([
+    getCachedCategoryGroups(locale),
+    getTranslations({ locale }),
+  ]);
+
   const siteName = t("seo.siteName");
   const baseUrl = APP_CONFIG.baseUrl;
 
   let collectionName = collectionSlug;
   try {
-    const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
-      { isAll: true },
-      locale
-    );
-    const categoryGroups = categoryGroupsResponse.data || [];
-    const category = categoryGroups
-      .flatMap((cg) => cg.categories || [])
-      .find((c) => c.slug === collectionSlug);
-    const categoryGroup = categoryGroups.find(
-      (cg) => cg.slug === collectionSlug
-    );
+    const { categoryGroupMap, categoryMap } = createLookupMaps(categoryGroups);
+    const category = categoryMap.get(collectionSlug);
+    const categoryGroup = categoryGroupMap.get(collectionSlug);
     collectionName = category?.name || categoryGroup?.name || collectionSlug;
   } catch (error) {
     console.error(`Error fetching collection name for ${collectionSlug}:`, error);
@@ -135,62 +158,44 @@ export default async function CollectionSlugPageRoot({
 }: CollectionSlugPageRootProps) {
   const { collectionSlug, locale } = await params;
 
-  const [productsResponse, categoryGroupsResponse] = await Promise.all([
-    productService.getProducts({ locale }),
-    categoryGroupService.getCategoryGroups({ isAll: true }, locale),
+  const [categoryGroups, t] = await Promise.all([
+    getCachedCategoryGroups(locale),
+    getTranslations({ locale }),
   ]);
 
-  const allProducts = productsResponse.data || [];
-  const categoryGroups = categoryGroupsResponse.data || [];
+  const { categoryGroupMap, categoryMap } = createLookupMaps(categoryGroups);
 
-  const categoryGroup = categoryGroups.find(
-    (cg) => cg.slug === collectionSlug
-  );
+  const categoryGroup = categoryGroupMap.get(collectionSlug);
+  const category = categoryMap.get(collectionSlug);
 
-  const categorySlugsInGroup = categoryGroup
-    ? categoryGroup.categories?.map((c) => c.slug) || []
-    : [];
+  const isCategoryGroup = !!categoryGroup;
+  const categoryGroupSlug = isCategoryGroup ? collectionSlug : undefined;
+  const categorySlugParam = category ? collectionSlug : undefined;
 
-  const filteredProducts = allProducts.filter((p) => {
-    if (p.category?.slug === collectionSlug) {
-      return true;
-    }
-    if (categoryGroup && categorySlugsInGroup.length > 0) {
-      return categorySlugsInGroup.includes(p.category?.slug || "");
-    }
-    return p.category?.group?.slug === collectionSlug;
+  const itemsPerPage = 10;
+  const productsResponse = await productService.getProducts({
+    locale,
+    page: 1,
+    limit: itemsPerPage,
+    categoryGroupSlug,
+    categorySlug: categorySlugParam,
   });
 
-  const itemsPerPage = 12;
-  const totalItems = filteredProducts.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const currentPage = 1;
-
-  const products = filteredProducts.slice(0, itemsPerPage);
-
-  const meta = {
+  const products = productsResponse.data || [];
+  const meta = productsResponse.meta || {
     itemsPerPage,
-    totalItems,
-    currentPage,
-    totalPages,
+    totalItems: products.length,
+    currentPage: 1,
+    totalPages: 1,
   };
 
   const baseUrl = APP_CONFIG.baseUrl;
   const url = `${baseUrl}/${locale}/${ROUTER.COLLECTIONS}/${collectionSlug}`;
-  const t = await getTranslations({ locale });
-
-  const category = categoryGroups
-    .flatMap((cg) => cg.categories || [])
-    .find((c) => c.slug === collectionSlug);
 
   const collectionName =
     category?.name ||
     categoryGroup?.name ||
     collectionSlug;
-
-  const isCategoryGroup = !!categoryGroup;
-  const categoryGroupSlug = isCategoryGroup ? collectionSlug : undefined;
-  const categorySlug = category ? collectionSlug : undefined;
 
   const breadcrumbItems = [
     {
@@ -213,7 +218,7 @@ export default async function CollectionSlugPageRoot({
         name={collectionName}
         description={`${collectionName} - ${t("seo.description")}`}
         url={url}
-        products={filteredProducts}
+        products={products}
         baseUrl={baseUrl}
       />
       <BreadcrumbStructuredData items={breadcrumbItems} />
@@ -225,7 +230,7 @@ export default async function CollectionSlugPageRoot({
         isAllProducts={false}
         meta={meta}
         categoryGroupSlug={categoryGroupSlug}
-        categorySlug={categorySlug}
+        categorySlug={categorySlugParam}
         isCategoryGroup={isCategoryGroup}
       />
     </>

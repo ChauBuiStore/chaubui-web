@@ -40,7 +40,6 @@ export interface LoadMoreParams {
   search?: string;
   categoryGroupSlug?: string;
   categorySlug?: string;
-  categoryGroups?: boolean;
 }
 
 export function buildLoadMoreParams(
@@ -49,12 +48,11 @@ export function buildLoadMoreParams(
   locale: string,
   searchQuery?: string,
   categoryGroupSlug?: string,
-  categorySlug?: string,
-  categoryGroups?: boolean
+  categorySlug?: string
 ): LoadMoreParams {
   const params: LoadMoreParams = {
     page: nextPage,
-    limit: initialMeta?.itemsPerPage || 12,
+    limit: 10,
     locale,
   };
 
@@ -68,10 +66,6 @@ export function buildLoadMoreParams(
 
   if (categorySlug) {
     params.categorySlug = categorySlug;
-  }
-
-  if (categoryGroups) {
-    params.categoryGroups = categoryGroups;
   }
 
   return params;

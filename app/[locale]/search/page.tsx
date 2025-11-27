@@ -16,8 +16,11 @@ export async function generateMetadata({
   params,
   searchParams,
 }: SearchPageRootProps): Promise<Metadata> {
-  const { locale } = await params;
-  const { search } = await searchParams;
+  const [{ locale }, { search }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
   const t = await getTranslations({ locale });
 
   const searchTitle = t("menu.search") || "Tìm kiếm";
@@ -40,14 +43,18 @@ export default async function SearchPageRoot({
   params,
   searchParams,
 }: SearchPageRootProps) {
-  const { locale } = await params;
-  const { search = "" } = await searchParams;
+  const [{ locale }, { search = "" }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
 
   let productsResponse = null;
   if (search && search.trim()) {
     productsResponse = await productService.getProducts({
       search: search.trim(),
       locale,
+      page: 1,
+      limit: 10,
     });
   }
 
