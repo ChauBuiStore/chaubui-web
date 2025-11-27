@@ -16,7 +16,7 @@ export function useSearchPage(initialSearch: string) {
     if (initialSearch !== inputValue) {
       setInputValue(initialSearch || "");
     }
-  }, [initialSearch]);
+  }, [initialSearch, inputValue]);
 
   const handleSearch = () => {
     if (!inputValue || !inputValue.trim()) {

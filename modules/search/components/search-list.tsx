@@ -29,7 +29,7 @@ export function SearchList({
 
   if (products.length === 0 && isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 mb-8">
         {[...Array(10)].map((_, i) => (
           <XSkeletonProduct key={`skeleton-${i}`} />
         ))}
@@ -39,7 +39,7 @@ export function SearchList({
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 mb-8">
         {products.map((product: Product, index: number) => (
           <XProduct
             key={product.id}

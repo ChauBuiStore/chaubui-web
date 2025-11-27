@@ -54,7 +54,7 @@ export default async function SearchPageRoot({
       search: search.trim(),
       locale,
       page: 1,
-      limit: 10,
+      limit: 12,
     });
   }
 

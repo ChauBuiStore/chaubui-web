@@ -1,9 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { ShoppingCart } from "lucide-react";
+
 import { XButton, XQuantity } from "@/components/common";
-import { useTranslations } from "@/lib/hooks";
 import { useProductVariant, useAddToCart } from "../hooks";
-import { useEffect, useState } from "react";
 import {
   getColorButtonData,
   getSizeButtonData,
@@ -15,48 +16,24 @@ import {
   getVariantButtonClassName,
 } from "../helpers";
 import { ProductPriceDisplay } from "./product-price-display";
-import { ShoppingCart } from "lucide-react";
+import { parseHTML } from "@/lib/utils/sanitize.utils";
 import { Product } from "../types";
 
-// Lazy load HTML parser để giảm bundle size
-function ProductDescription({ description }: { description: string }) {
-  const [parsedContent, setParsedContent] = useState<React.ReactNode>(null);
-  const [isLoading, setIsLoading] = useState(true);
+interface ProductDescriptionProps {
+  description: string;
+}
+
+function ProductDescription({ description }: ProductDescriptionProps) {
   const t = useTranslations("product");
 
-  useEffect(() => {
-    if (!description) {
-      setParsedContent(null);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    // Dynamic import html-react-parser chỉ khi cần
-    Promise.all([
-      import("html-react-parser"),
-      import("@/lib/utils/sanitize.utils")
-    ]).then(([{ default: parse }, { parseHTML }]) => {
-      setParsedContent(parseHTML(description));
-      setIsLoading(false);
-    }).catch(() => {
-      setParsedContent(description);
-      setIsLoading(false);
-    });
-  }, [description]);
-
   if (!description) return null;
+
+  const parsedContent = parseHTML(description);
 
   return (
     <div className="mt-8">
       <h3 className="text-lg font-semibold mb-4">{t("description")}</h3>
-      <div className="prose prose-sm max-w-none">
-        {isLoading ? (
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
-        ) : (
-          parsedContent
-        )}
-      </div>
+      <div className="prose prose-sm max-w-none">{parsedContent}</div>
     </div>
   );
 }
@@ -67,6 +44,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product }: ProductInfoProps) {
   const t = useTranslations("product");
+
   const {
     selectedVariant,
     selectedColor,
@@ -90,17 +68,25 @@ export function ProductInfo({ product }: ProductInfoProps) {
     () => setQuantity(1)
   );
 
+  const hasVariants = hasNonNoneVariants(product.variants || []);
+  const validColors = hasValidColors(availableColors)
+    ? filterValidColors(availableColors)
+    : [];
+  const validSizes = hasValidSizes(availableSizes)
+    ? filterValidSizes(availableSizes)
+    : [];
+
   return (
     <>
       <div className="border-t border-dotted border-gray-300 py-2">
         <ProductPriceDisplay variant={selectedVariant} product={product} />
       </div>
 
-      {hasNonNoneVariants(product.variants || []) ? (
+      {hasVariants && (
         <>
-          {hasValidColors(availableColors) && (
+          {validColors.length > 0 && (
             <div className="flex flex-wrap gap-2 border-t border-dotted border-gray-300 py-4">
-              {filterValidColors(availableColors).map((colorCode: string) => {
+              {validColors.map((colorCode: string) => {
                 const { colorObj, isAvailable, isSelected } = getColorButtonData(
                   colorCode,
                   product,
@@ -126,9 +112,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
               })}
             </div>
           )}
-          {hasValidSizes(availableSizes) && (
+
+          {validSizes.length > 0 && (
             <div className="flex flex-wrap gap-2 border-t border-dotted border-gray-300 py-4">
-              {filterValidSizes(availableSizes).map((sizeName: string) => {
+              {validSizes.map((sizeName: string) => {
                 const { sizeObj, isAvailable, isSelected } = getSizeButtonData(
                   sizeName,
                   product,
@@ -151,7 +138,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </div>
           )}
         </>
-      ) : null}
+      )}
 
       {!isOutOfStock && (
         <div className="pt-4 border-t border-dotted border-gray-300">

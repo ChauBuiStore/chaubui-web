@@ -168,8 +168,7 @@ export default async function CollectionSlugPageRoot({
   const categoryGroup = categoryGroupMap.get(collectionSlug);
   const category = categoryMap.get(collectionSlug);
 
-  const isCategoryGroup = !!categoryGroup;
-  const categoryGroupSlug = isCategoryGroup ? collectionSlug : undefined;
+  const categoryGroupSlug = categoryGroup ? collectionSlug : undefined;
   const categorySlugParam = category ? collectionSlug : undefined;
 
   const itemsPerPage = 10;
@@ -231,7 +230,6 @@ export default async function CollectionSlugPageRoot({
         meta={meta}
         categoryGroupSlug={categoryGroupSlug}
         categorySlug={categorySlugParam}
-        isCategoryGroup={isCategoryGroup}
       />
     </>
   );

@@ -52,7 +52,7 @@ export function buildLoadMoreParams(
 ): LoadMoreParams {
   const params: LoadMoreParams = {
     page: nextPage,
-    limit: 10,
+    limit: 12,
     locale,
   };
 

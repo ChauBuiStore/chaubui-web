@@ -16,7 +16,6 @@ interface CollectionsSlugPageProps {
   locale: string;
   categoryGroupSlug?: string;
   categorySlug?: string;
-  isCategoryGroup?: boolean;
 }
 
 export function CollectionsSlugPage({
@@ -28,7 +27,6 @@ export function CollectionsSlugPage({
   locale,
   categoryGroupSlug,
   categorySlug,
-  isCategoryGroup,
 }: CollectionsSlugPageProps) {
   const t = useTranslations();
   const menuItems = createProductMenuItems(categoryGroups, t);
@@ -38,19 +36,11 @@ export function CollectionsSlugPage({
 
   return (
     <XPage breadcrumbItems={breadcrumbs}>
-      <section aria-labelledby="collection-title" className="space-y-8 py-6 md:py-8">
+      <section aria-labelledby="collection-title">
         <div className="space-y-2">
-          <h1
-            id="collection-title"
-            className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
-          >
+          <h1 id="collection-title" className="text-2xl font-bold mb-4">
             {pageTitle}
           </h1>
-          {products.length > 0 && (
-            <p className="text-muted-foreground text-sm md:text-base">
-              {products.length} {products.length === 1 ? 'sản phẩm' : 'sản phẩm'}
-            </p>
-          )}
         </div>
 
         <CollectionsList

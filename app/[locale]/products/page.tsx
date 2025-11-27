@@ -81,7 +81,7 @@ export default async function ProductsPageRoot({
   const { locale } = await params;
 
   const [productsResponse, t] = await Promise.all([
-    productService.getProducts({ locale, page: 1, limit: 10 }),
+    productService.getProducts({ locale, page: 1, limit: 12 }),
     getTranslations({ locale }),
   ]);
 

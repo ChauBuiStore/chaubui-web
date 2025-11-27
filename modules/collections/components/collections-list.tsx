@@ -70,14 +70,12 @@ export function CollectionsList({
       </div>
 
       {products.length > 0 && (
-        <div className="pt-4">
-          <XLoadMore
-            onLoadMore={handleLoadMore}
-            isLoading={isLoading}
-            hasMore={hasMore}
-            loadMoreText={t('loadMore')}
-          />
-        </div>
+        <XLoadMore
+          onLoadMore={handleLoadMore}
+          isLoading={isLoading}
+          hasMore={hasMore}
+          loadMoreText={t('loadMore')}
+        />
       )}
     </div>
   );
