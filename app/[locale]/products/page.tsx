@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { BreadcrumbStructuredData } from "@/components/seo";
 import { APP_CONFIG } from "@/lib/configs";
 import { truncateTitle, truncateDescription } from "@/lib/utils";
+import { XPageWithBreadcrumb } from "@/components/common";
 
 interface ProductsPageRootProps {
   params: Promise<{
@@ -105,11 +106,21 @@ export default async function ProductsPageRoot({
   return (
     <>
       <BreadcrumbStructuredData items={breadcrumbItems} />
-      <ProductPage
-        products={products}
-        meta={meta}
+      <XPageWithBreadcrumb
+        breadcrumbConfig={{
+          type: "simple",
+          homeLabel: t("menu.home"),
+          currentLabel: t("menu.allProducts"),
+          currentHref: ROUTER.PRODUCT,
+        }}
         locale={locale}
-      />
+      >
+        <ProductPage
+          products={products}
+          meta={meta}
+          locale={locale}
+        />
+      </XPageWithBreadcrumb>
     </>
   );
 }

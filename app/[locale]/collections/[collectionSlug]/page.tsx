@@ -1,15 +1,17 @@
-import { BreadcrumbStructuredData, CollectionStructuredData } from "@/components/seo";
+import { CollectionStructuredData } from "@/components/seo";
 import { APP_CONFIG } from "@/lib/configs";
 import { ROUTER } from "@/lib/constants";
 import { routing } from "@/lib/i18n";
 import { categoryGroupService } from "@/lib/services/category-group.service";
 import { productService } from "@/lib/services/product.service";
-import { TransformedCategoryGroup, TransformCategory } from "@/lib/types";
+import { TransformCategory, TransformedCategoryGroup } from "@/lib/types";
 import { truncateDescription, truncateTitle } from "@/lib/utils";
 import { CollectionsSlugPage } from "@/modules/collections/pages";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { cache } from "react";
+import { XPageWithBreadcrumb } from "@/components/common";
 
 interface CollectionSlugPageRootProps {
   params: Promise<{
@@ -34,9 +36,7 @@ export async function generateStaticParams() {
           collectionSlug: categoryGroup.slug,
           locale,
         });
-      }
 
-      for (const categoryGroup of categoryGroups) {
         if (categoryGroup.categories) {
           for (const category of categoryGroup.categories) {
             params.push({
@@ -104,7 +104,7 @@ export async function generateMetadata({
 
   const title = truncateTitle(`${collectionName} | ${siteName}`);
   const description = truncateDescription(`${collectionName} - ${t("seo.description")}`);
-  const url = `${baseUrl}/${locale}/${ROUTER.COLLECTIONS}/${collectionSlug}`;
+  const url = `${baseUrl}/${locale}${ROUTER.COLLECTIONS}/${collectionSlug}`;
 
   return {
     title,
@@ -134,10 +134,10 @@ export async function generateMetadata({
     alternates: {
       canonical: url,
       languages: {
-        vi: `${baseUrl}/vi/${ROUTER.COLLECTIONS}/${collectionSlug}`,
-        en: `${baseUrl}/en/${ROUTER.COLLECTIONS}/${collectionSlug}`,
-        km: `${baseUrl}/km/${ROUTER.COLLECTIONS}/${collectionSlug}`,
-        "x-default": `${baseUrl}/vi/${ROUTER.COLLECTIONS}/${collectionSlug}`,
+        vi: `${baseUrl}/vi${ROUTER.COLLECTIONS}/${collectionSlug}`,
+        en: `${baseUrl}/en${ROUTER.COLLECTIONS}/${collectionSlug}`,
+        km: `${baseUrl}/km${ROUTER.COLLECTIONS}/${collectionSlug}`,
+        "x-default": `${baseUrl}/vi${ROUTER.COLLECTIONS}/${collectionSlug}`,
       },
     },
     robots: {
@@ -169,6 +169,14 @@ export default async function CollectionSlugPageRoot({
   const categoryGroup = categoryGroupMap.get(collectionSlug);
   const category = categoryMap.get(collectionSlug);
 
+  if (!category && !categoryGroup) {
+    notFound();
+  }
+
+  const collectionName = category?.name || categoryGroup?.name || collectionSlug;
+  const baseUrl = APP_CONFIG.baseUrl;
+  const url = `${baseUrl}/${locale}${ROUTER.COLLECTIONS}/${collectionSlug}`;
+
   const productParams: {
     locale: string;
     page: number;
@@ -178,15 +186,13 @@ export default async function CollectionSlugPageRoot({
   } = {
     locale,
     page: 1,
-    limit: 10,
+    limit: 12,
   };
 
   if (category) {
     productParams.categorySlug = collectionSlug;
   } else if (categoryGroup) {
     productParams.categoryGroupSlug = collectionSlug;
-  } else {
-    productParams.categorySlug = collectionSlug;
   }
 
   const productsResponse = await productService.getProducts(productParams);
@@ -199,29 +205,6 @@ export default async function CollectionSlugPageRoot({
     totalPages: 1,
   };
 
-  const baseUrl = APP_CONFIG.baseUrl;
-  const url = `${baseUrl}/${locale}/${ROUTER.COLLECTIONS}/${collectionSlug}`;
-
-  const collectionName =
-    category?.name ||
-    categoryGroup?.name ||
-    collectionSlug;
-
-  const breadcrumbItems = [
-    {
-      name: t("menu.home"),
-      url: `${baseUrl}/${locale}`,
-    },
-    {
-      name: t("menu.allProducts"),
-      url: `${baseUrl}/${locale}/${ROUTER.COLLECTIONS}`,
-    },
-    {
-      name: collectionName,
-      url: url,
-    },
-  ];
-
   return (
     <>
       <CollectionStructuredData
@@ -230,18 +213,25 @@ export default async function CollectionSlugPageRoot({
         url={url}
         products={products}
         baseUrl={baseUrl}
-      />
-      <BreadcrumbStructuredData items={breadcrumbItems} />
-      <CollectionsSlugPage
-        products={products}
-        categoryGroups={categoryGroups}
-        collectionSlug={collectionSlug}
         locale={locale}
-        isAllProducts={false}
-        meta={meta}
-        categoryGroupSlug={productParams.categoryGroupSlug}
-        categorySlug={productParams.categorySlug}
       />
+      <XPageWithBreadcrumb
+        breadcrumbConfig={{
+          type: "collection",
+          collectionSlug,
+          isAllProducts: false,
+        }}
+        locale={locale}
+      >
+        <CollectionsSlugPage
+          products={products}
+          locale={locale}
+          meta={meta}
+          categoryGroupSlug={productParams.categoryGroupSlug}
+          categorySlug={productParams.categorySlug}
+          pageTitle={collectionName}
+        />
+      </XPageWithBreadcrumb>
     </>
   );
 }

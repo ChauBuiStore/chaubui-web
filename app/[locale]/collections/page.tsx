@@ -5,6 +5,7 @@ import { categoryGroupService } from "@/lib/services/category-group.service";
 import { CollectionsPage } from "@/modules/collections/pages";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cache } from "react";
+import { XPageWithBreadcrumb } from "@/components/common";
 
 const getCachedCategoryGroups = cache(async (locale: string) => {
   const categoryGroupsResponse = await categoryGroupService.getCategoryGroups({ isAll: true }, locale);
@@ -32,27 +33,23 @@ export default async function CollectionsPageRoot() {
     },
   ];
 
-  const pageBreadcrumbs = [
-    {
-      label: t("menu.home"),
-      href: ROUTER.HOME,
-      isActive: false,
-    },
-    {
-      label: t("menu.collections"),
-      href: ROUTER.COLLECTIONS,
-      isActive: true,
-    },
-  ];
-
   return (
     <>
       <BreadcrumbStructuredData items={breadcrumbItems} />
-      <CollectionsPage
-        categoryGroups={categoryGroups}
-        breadcrumbItems={pageBreadcrumbs}
-        collectionsLabel={t("menu.collections")}
-      />
+      <XPageWithBreadcrumb
+        breadcrumbConfig={{
+          type: "simple",
+          homeLabel: t("menu.home"),
+          currentLabel: t("menu.collections"),
+          currentHref: ROUTER.COLLECTIONS,
+        }}
+        locale={locale}
+      >
+        <CollectionsPage
+          categoryGroups={categoryGroups}
+          collectionsLabel={t("menu.collections")}
+        />
+      </XPageWithBreadcrumb>
     </>
   );
 }

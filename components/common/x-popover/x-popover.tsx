@@ -62,5 +62,3 @@ export const XPopover = forwardRef<HTMLDivElement, XPopoverProps>(
 
 XPopover.displayName = "XPopover";
 
-export default XPopover;
-

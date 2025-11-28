@@ -13,12 +13,11 @@ export function useProductVariant(product: Product) {
   const currentStock = selectedVariant?.stock ?? product.stock;
   const isOutOfStock = currentStock === 0 || currentStock === undefined || currentStock === null;
 
-  // Cache availableColors và availableSizes để tránh tính toán lại mỗi lần render
   useEffect(() => {
     if (product?.variants?.length) {
       const colors = new Set<string>();
       const sizes = new Set<string>();
-      
+
       product.variants.forEach((v: ProductVariant) => {
         if (v.color?.code) {
           colors.add(v.color.code);
@@ -27,7 +26,7 @@ export function useProductVariant(product: Product) {
           sizes.add(v.size.name);
         }
       });
-      
+
       setAvailableColors(Array.from(colors));
       setAvailableSizes(Array.from(sizes));
     } else {

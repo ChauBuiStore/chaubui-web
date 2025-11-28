@@ -2,7 +2,7 @@ import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import React from "react";
-import { XButton } from "../x-button";
+import { XButton } from "@/components/common";
 
 interface XInputProps extends Omit<React.ComponentProps<typeof Input>, 'size'> {
   label?: string;

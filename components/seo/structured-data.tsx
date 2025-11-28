@@ -213,6 +213,7 @@ interface CollectionStructuredDataProps {
   url: string;
   products: Product[];
   baseUrl: string;
+  locale: string;
 }
 
 export function CollectionStructuredData({
@@ -221,6 +222,7 @@ export function CollectionStructuredData({
   url,
   products,
   baseUrl,
+  locale,
 }: CollectionStructuredDataProps) {
   const data = {
     "@context": "https://schema.org",
@@ -237,7 +239,7 @@ export function CollectionStructuredData({
         item: {
           "@type": "Product",
           name: product.name,
-          url: `${baseUrl}/products/${product.slug}`,
+          url: `${baseUrl}/${locale}/products/${product.slug}`,
           image:
             product.images?.[0]?.file?.url ||
             product.thumbnailUrl ||

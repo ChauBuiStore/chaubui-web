@@ -120,5 +120,3 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
 );
 
 XDropdownMenu.displayName = "XDropdownMenu";
-
-export default XDropdownMenu;

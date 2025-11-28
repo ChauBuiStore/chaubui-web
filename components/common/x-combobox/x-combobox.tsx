@@ -154,5 +154,3 @@ export const XCombobox = React.forwardRef<HTMLDivElement, XComboboxProps>(
 );
 
 XCombobox.displayName = "XCombobox";
-
-export default XCombobox;
