@@ -11,7 +11,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { XPageWithBreadcrumb } from "@/components/common";
+import { XPage } from "@/components/common";
+import type { BreadcrumbItem as BreadcrumbItemUI } from "@/lib/types";
 
 interface CollectionSlugPageRootProps {
   params: Promise<{
@@ -54,6 +55,13 @@ export async function generateStaticParams() {
   return params;
 }
 
+interface TransformCategoryWithGroup extends TransformCategory {
+  group: {
+    slug: string;
+    name: string;
+  };
+}
+
 const getCachedCategoryGroups = cache(async (locale: string) => {
   const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
     { isAll: true },
@@ -62,16 +70,24 @@ const getCachedCategoryGroups = cache(async (locale: string) => {
   return categoryGroupsResponse.data || [];
 });
 
-function createLookupMaps(categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>>) {
+function createLookupMaps(
+  categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>>
+) {
   const categoryGroupMap = new Map<string, TransformedCategoryGroup>(
     categoryGroups.map((cg: TransformedCategoryGroup) => [cg.slug, cg])
   );
 
-  const categoryMap = new Map<string, TransformCategory>();
+  const categoryMap = new Map<string, TransformCategoryWithGroup>();
   for (const cg of categoryGroups) {
     if (cg.categories) {
       for (const category of cg.categories) {
-        categoryMap.set(category.slug, category);
+        categoryMap.set(category.slug, {
+          ...category,
+          group: {
+            slug: cg.slug,
+            name: cg.name,
+          },
+        });
       }
     }
   }
@@ -175,7 +191,38 @@ export default async function CollectionSlugPageRoot({
 
   const collectionName = category?.name || categoryGroup?.name || collectionSlug;
   const baseUrl = APP_CONFIG.baseUrl;
-  const url = `${baseUrl}/${locale}${ROUTER.COLLECTIONS}/${collectionSlug}`;
+
+  const uiBreadcrumbItems: BreadcrumbItemUI[] =
+    category && category.group
+      ? [
+        {
+          label: t("menu.home"),
+          href: ROUTER.HOME,
+          isActive: false,
+        },
+        {
+          label: category.group.name,
+          href: `${ROUTER.COLLECTIONS}/${category.group.slug}`,
+          isActive: false,
+        },
+        {
+          label: collectionName,
+          href: `${ROUTER.COLLECTIONS}/${collectionSlug}`,
+          isActive: true,
+        },
+      ]
+      : [
+        {
+          label: t("menu.home"),
+          href: ROUTER.HOME,
+          isActive: false,
+        },
+        {
+          label: collectionName,
+          href: `${ROUTER.COLLECTIONS}/${collectionSlug}`,
+          isActive: true,
+        },
+      ];
 
   const productParams: {
     locale: string;
@@ -210,19 +257,12 @@ export default async function CollectionSlugPageRoot({
       <CollectionStructuredData
         name={collectionName}
         description={`${collectionName} - ${t("seo.description")}`}
-        url={url}
+        url={`${baseUrl}/${locale}${ROUTER.COLLECTIONS}/${collectionSlug}`}
         products={products}
         baseUrl={baseUrl}
         locale={locale}
       />
-      <XPageWithBreadcrumb
-        breadcrumbConfig={{
-          type: "collection",
-          collectionSlug,
-          isAllProducts: false,
-        }}
-        locale={locale}
-      >
+      <XPage breadcrumbItems={uiBreadcrumbItems} aria-label={collectionName}>
         <CollectionsSlugPage
           products={products}
           locale={locale}
@@ -231,7 +271,7 @@ export default async function CollectionSlugPageRoot({
           categorySlug={productParams.categorySlug}
           pageTitle={collectionName}
         />
-      </XPageWithBreadcrumb>
+      </XPage>
     </>
   );
 }

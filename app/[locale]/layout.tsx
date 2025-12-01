@@ -1,4 +1,4 @@
-import { Header } from "@/components/layout";
+import { Header, ProgressBar } from "@/components/layout";
 import { Toaster } from "@/components/ui";
 import { isValidLocale, routing } from "@/lib/i18n";
 import { ReactQueryProvider, CartProvider } from "@/lib/providers";
@@ -16,6 +16,9 @@ import {
 } from "@/components/seo";
 import { PreconnectLinks } from "@/components/seo/preconnect-links";
 import { APP_CONFIG } from "@/lib/configs";
+import { ROUTER } from "@/lib/constants";
+import { categoryGroupService } from "@/lib/services/category-group.service";
+import type { MenuItem, TransformedCategoryGroup } from "@/lib/types";
 import { truncateTitle, truncateDescription } from "@/lib/utils";
 
 const inter = Inter({
@@ -24,6 +27,26 @@ const inter = Inter({
 });
 
 const baseUrl = APP_CONFIG.baseUrl;
+
+function transformCategoryGroupsToMenuItems(
+  categoryGroups: TransformedCategoryGroup[]
+): MenuItem[] {
+  return categoryGroups.map((group) => {
+    const children: MenuItem[] = group.categories
+      ? group.categories.map((category) => ({
+        title: category.name,
+        href: `${ROUTER.COLLECTIONS}/${category.slug}`,
+        description: category.description,
+      }))
+      : [];
+
+    return {
+      title: group.name,
+      href: `${ROUTER.COLLECTIONS}/${group.slug}`,
+      children: children.length > 0 ? children : undefined,
+    };
+  });
+}
 
 export async function generateMetadata({
   params,
@@ -116,6 +139,32 @@ export default async function RootLayout({
   const messages = await getMessages();
   const t = await getTranslations({ locale });
 
+  const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
+    undefined,
+    locale
+  );
+
+  const homeItem: MenuItem = {
+    title: t("menu.home"),
+    href: ROUTER.HOME,
+  };
+
+  const allProductsItem: MenuItem = {
+    title: t("menu.allProducts"),
+    href: ROUTER.PRODUCT,
+  };
+
+  let menuItems: MenuItem[] = [homeItem, allProductsItem];
+
+  if (categoryGroupsResponse.data) {
+    const transformedData =
+      categoryGroupsResponse.data as TransformedCategoryGroup[];
+    const categoryMenuItems = transformCategoryGroupsToMenuItems(
+      transformedData || []
+    );
+    menuItems = [homeItem, allProductsItem, ...categoryMenuItems];
+  }
+
   const siteName = t("seo.siteName");
   const description = t("seo.description");
 
@@ -125,6 +174,7 @@ export default async function RootLayout({
         className={`${inter.className} font-sans antialiased`}
         suppressHydrationWarning
       >
+        <ProgressBar />
         <OrganizationStructuredData
           baseUrl={baseUrl}
           locale={locale}
@@ -155,7 +205,7 @@ export default async function RootLayout({
         <ReactQueryProvider>
           <NextIntlClientProvider messages={messages}>
             <CartProvider>
-              <Header />
+              <Header menuItems={menuItems} />
               {children}
               <Footer />
               <Toaster />

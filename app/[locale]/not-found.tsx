@@ -4,7 +4,7 @@ import { XButton, XCard, XPage } from "@/components/common";
 import { ROUTER } from "@/lib/constants";
 import { useTranslations } from "@/lib/hooks";
 import { Link } from "@/lib/i18n/routing";
-import { FileQuestion, Home, ShoppingBag } from "lucide-react";
+import { Home, ShoppingBag } from "lucide-react";
 
 export default function NotFound() {
   const t = useTranslations("notFound");
@@ -17,13 +17,9 @@ export default function NotFound() {
       <div className="w-full max-w-2xl mx-auto px-4">
         <XCard className="shadow-none border-none">
           <div className="flex flex-col items-center gap-6">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full">
-              <FileQuestion className="w-14 h-14 text-gray-600 dark:text-gray-400" />
-            </div>
-
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {t("title")}
+              <h1 className="text-8xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                404
               </h1>
               <p className="text-muted-foreground text-md max-w-lg mx-auto">
                 {t("description")}

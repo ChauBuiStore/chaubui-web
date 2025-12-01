@@ -1,40 +1,33 @@
 "use client";
 
-import { XError, XMenu, XSkeletonMenu } from "@/components/common";
+import { XMenu } from "@/components/common";
 import { ScrollArea } from "@/components/ui";
-import { ROUTER } from "@/lib/constants";
-import { useMenuItems, useTranslations } from "@/lib/hooks";
+import { useTranslations } from "@/lib/hooks";
+import type { MenuItem } from "@/lib/types";
 
-export function Menu({ onItemClick }: { onItemClick?: () => void }) {
+interface MenuProps {
+  menuItems: MenuItem[];
+  onItemClick?: () => void;
+}
+
+export function Menu({ menuItems, onItemClick }: MenuProps) {
   const t = useTranslations();
-  const { menuItems, isLoading, isError, error } = useMenuItems();
 
-  if (isLoading) {
-    return <XSkeletonMenu orientation="vertical" itemCount={10} />;
-  }
+  const hasItems = menuItems && menuItems.length > 0;
 
-  if (isError) {
-    return (
-      <>
-        <XError error={error} />
-        <XMenu
-          orientation="vertical"
-          items={[{ title: t("menu.home"), href: ROUTER.HOME }]}
-          className="mt-4"
-          onItemClick={onItemClick}
-        />
-      </>
-    );
-  }
+  const itemsToRender: MenuItem[] = hasItems
+    ? menuItems
+    : [{ title: t("menu.home"), href: "/" }];
 
   return (
     <ScrollArea className="h-[calc(100vh)]">
       <XMenu
         orientation="vertical"
-        items={menuItems}
+        items={itemsToRender}
         className="p-4"
         onItemClick={onItemClick}
       />
     </ScrollArea>
   );
 }
+

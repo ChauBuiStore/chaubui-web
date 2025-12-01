@@ -11,7 +11,6 @@ export * from "./x-input";
 export * from "./x-load-more";
 export * from "./x-menu";
 export * from "./x-page";
-export * from "./x-page-with-breadcrumb";
 export * from "./x-pagination";
 export * from "./x-popover";
 export * from "./x-product";

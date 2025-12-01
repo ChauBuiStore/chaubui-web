@@ -100,7 +100,7 @@ export function createProductMenuItems(
       children: [],
     },
     {
-      title: t("menu.collections"),
+      title: t("collections.categories"),
       href: ROUTER.COLLECTIONS,
       children: categoryGroups.map(group => ({
         title: group.name,

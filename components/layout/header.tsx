@@ -3,6 +3,7 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui";
 import { ROUTER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import type { MenuItem } from "@/lib/types";
 import { AccountHeader } from "@/modules/account/components";
 import { CartHeader } from "@/modules/cart/components";
 import { SearchHeader } from "@/modules/search/components";
@@ -13,7 +14,11 @@ import { Language } from "./language";
 import { Menu } from "./menu";
 import { useTranslations } from "@/lib/hooks";
 
-export function Header() {
+interface HeaderProps {
+  menuItems: MenuItem[];
+}
+
+export function Header({ menuItems }: HeaderProps) {
   const tSeo = useTranslations("seo");
   const [isScrolled, setIsScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -83,7 +88,7 @@ export function Header() {
         </div>
       </header>
       <SheetContent side="left" className="w-[85vw] sm:w-[320px] p-0">
-        <Menu onItemClick={() => setOpen(false)} />
+        <Menu menuItems={menuItems} onItemClick={() => setOpen(false)} />
       </SheetContent>
     </Sheet>
   );

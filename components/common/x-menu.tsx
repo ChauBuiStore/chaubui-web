@@ -9,6 +9,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { SheetClose } from "@/components/ui";
 import { MenuItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -77,9 +78,15 @@ export function XMenu({
         >
           {Icon && <Icon className="w-4 h-4 mr-3 flex-shrink-0" />}
           {item.href ? (
-            <Link href={item.href} className="flex-1" onClick={handleLinkClick}>
-              {item.title}
-            </Link>
+            <SheetClose asChild>
+              <Link
+                href={item.href}
+                className="flex-1"
+                onClick={handleLinkClick}
+              >
+                {item.title}
+              </Link>
+            </SheetClose>
           ) : (
             <span className="flex-1">{item.title}</span>
           )}
