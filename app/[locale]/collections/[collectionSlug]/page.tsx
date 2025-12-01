@@ -55,12 +55,12 @@ export async function generateStaticParams() {
   return params;
 }
 
-interface TransformCategoryWithGroup extends TransformCategory {
+type TransformCategoryWithGroup = Omit<TransformCategory, "group"> & {
   group: {
     slug: string;
     name: string;
   };
-}
+};
 
 const getCachedCategoryGroups = cache(async (locale: string) => {
   const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(

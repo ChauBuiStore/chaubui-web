@@ -168,7 +168,7 @@ export default async function ProductSlugPageRoot({
   const t = await getTranslations({ locale });
   const baseUrl = APP_CONFIG.baseUrl;
 
-  let category = product.category;
+  const category = product.category;
   let categoryGroup = category?.group;
 
   if (category && !categoryGroup && category.slug) {
