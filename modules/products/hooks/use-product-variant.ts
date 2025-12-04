@@ -67,11 +67,11 @@ export function useProductVariant(product: Product) {
   }, [selectedColor, selectedSize]);
 
   const getAvailableSizes = (colorCode: string) => {
-    return getAvailableSizesForColor(product.variants, colorCode);
+    return getAvailableSizesForColor(product.variants ?? [], colorCode);
   };
 
   const getAvailableColors = (sizeName: string) => {
-    return getAvailableColorsForSize(product.variants, sizeName);
+    return getAvailableColorsForSize(product.variants ?? [], sizeName);
   };
 
   return {

@@ -6,15 +6,7 @@ export function getProductUrl(product: Product): string {
 }
 
 export function getProductImageUrl(product: Product): string | null {
-  if (product.thumbnailUrl) {
-    return product.thumbnailUrl;
-  }
-
-  if (product.images?.[0]?.file?.url) {
-    return product.images[0].file.url;
-  }
-
-  return null;
+  return product.thumbnailUrl || null;
 }
 
 export function getProductDisplayPrice(product: Product): {
@@ -26,17 +18,17 @@ export function getProductDisplayPrice(product: Product): {
   if (product.variants && product.variants.length > 0) {
     const firstVariant = product.variants[0];
     return {
-      originalPrice: firstVariant.originalPrice,
-      salePrice: firstVariant.salePrice || firstVariant.originalPrice,
-      discountPercent: firstVariant.discountPercent || 0,
+      originalPrice: firstVariant.originalPrice ?? 0,
+      salePrice: firstVariant.salePrice ?? firstVariant.originalPrice ?? 0,
+      discountPercent: firstVariant.discountPercent ?? 0,
       stock: firstVariant.stock,
     };
   }
 
   return {
-    originalPrice: product.originalPrice,
-    salePrice: product.salePrice,
-    discountPercent: product.discountPercent || 0,
+    originalPrice: product.originalPrice ?? 0,
+    salePrice: product.salePrice ?? 0,
+    discountPercent: product.discountPercent ?? 0,
     stock: product.stock,
   };
 }

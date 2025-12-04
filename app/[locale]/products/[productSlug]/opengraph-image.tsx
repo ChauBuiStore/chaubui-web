@@ -31,9 +31,9 @@ export default async function Image({
   const baseUrl = APP_CONFIG.baseUrl;
 
   try {
-    const product = await getCachedProduct(productSlug, locale);
+    const productDetail = await getCachedProduct(productSlug, locale);
 
-    if (!product) {
+    if (!productDetail) {
       return new ImageResponse(
         (
           <div
@@ -57,11 +57,11 @@ export default async function Image({
       );
     }
 
-    const productName = product.name || 'Product';
-    const productPrice = product.salePrice || product.originalPrice || 0;
-    const hasDiscount = product.salePrice && product.salePrice < product.originalPrice;
-    const originalPrice = product.originalPrice || 0;
-    const productImageUrl = product.images?.[0]?.file?.url;
+    const productName = productDetail.name || 'Product';
+    const productPrice = productDetail.salePrice || productDetail.originalPrice || 0;
+    const hasDiscount = productDetail.salePrice != null && productDetail.originalPrice != null && productDetail.salePrice < productDetail.originalPrice;
+    const originalPrice = productDetail.originalPrice || 0;
+    const productImageUrl = productDetail.images?.[0]?.file?.url;
 
     const formattedPrice = formatPriceForOG(productPrice, locale);
     const formattedOriginalPrice = hasDiscount ? formatPriceForOG(originalPrice, locale) : '';

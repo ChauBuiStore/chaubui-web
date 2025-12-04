@@ -1,7 +1,7 @@
 import { ENDPOINTS, fetcher } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
 import { transformLocaleFields } from "@/lib/utils/locale.utils";
-import { Product } from "@/modules/products/types";
+import { Product, ProductDetail } from "@/modules/products/types";
 
 interface ProductParams {
   search?: string;
@@ -17,15 +17,20 @@ export const productService = {
     params?: ProductParams
   ): Promise<ApiResponse<Product[]>> {
     const { locale = "vi", ...restParams } = params || {};
-    const response = await fetcher.get<Product[]>(ENDPOINTS.PRODUCT.GET_ALL, {
-      params: restParams as Record<string, unknown>,
-    });
 
-    if (response.data) {
-      response.data = transformLocaleFields(
-        response.data,
-        locale
-      ) as Product[];
+    const response = await fetcher.get<Product[]>(
+      ENDPOINTS.PRODUCT.GET_ALL,
+      {
+        params: restParams as Record<string, unknown>,
+      }
+    );
+
+    const rawData = response.data;
+
+    if (Array.isArray(rawData)) {
+      response.data = transformLocaleFields(rawData, locale) as Product[];
+    } else {
+      response.data = [];
     }
 
     return response;
@@ -34,8 +39,8 @@ export const productService = {
   async getProductById(
     id: string,
     locale: string = "vi"
-  ): Promise<ApiResponse<Product>> {
-    const response = await fetcher.get<Product>(
+  ): Promise<ApiResponse<ProductDetail>> {
+    const response = await fetcher.get<ProductDetail>(
       ENDPOINTS.PRODUCT.GET_BY_ID(id)
     );
 
@@ -43,7 +48,7 @@ export const productService = {
       response.data = transformLocaleFields(
         response.data,
         locale
-      ) as Product;
+      ) as ProductDetail;
     }
 
     return response;

@@ -25,13 +25,6 @@ export default function GlobalError({
               Rất tiếc, có sự cố không mong muốn vừa xảy ra. Vui lòng thử lại.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => reset()}
-                className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:opacity-90 focus:outline-none"
-              >
-                Thử lại
-              </button>
               <Link
                 href="/"
                 className="inline-flex items-center rounded-md border px-4 py-2 hover:bg-accent"

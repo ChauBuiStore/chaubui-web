@@ -22,7 +22,7 @@ export function XProduct({
   const imageUrl = getProductImageUrl(product);
   const displayPrice = getProductDisplayPrice(product);
   const productUrl = getProductUrl(product);
-  const isOutOfStock = displayPrice.stock === 0 || displayPrice.stock === undefined || displayPrice.stock === null;
+  const isOutOfStock = displayPrice.stock === 0;
 
   return (
     <XCard className="overflow-hidden p-0 gap-0 border-none shadow-none group">
@@ -42,7 +42,7 @@ export function XProduct({
             {imageUrl ? (
               <Image
                 src={imageUrl}
-                alt={`${product.name} - ${product.category?.nameVi || product.category?.nameEn || 'Sản phẩm'} tại Livin N Decoration`}
+                alt={`${product.name} tại Livin N Decoration`}
                 className="w-full h-full object-cover transition-all duration-500 ease-in-out overflow-hidden opacity-50 grayscale"
                 fill
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
@@ -79,7 +79,7 @@ export function XProduct({
               {imageUrl ? (
                 <Image
                   src={imageUrl}
-                  alt={`${product.name} - ${product.category?.nameVi || product.category?.nameEn || 'Sản phẩm'} tại Livin N Decoration`}
+                  alt={`${product.name} tại Livin N Decoration`}
                   className="w-full h-full object-cover transition-all duration-500 ease-in-out overflow-hidden hover:scale-110"
                   fill
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
@@ -99,12 +99,12 @@ export function XProduct({
       <div className="py-4">
         {isOutOfStock ? (
           <h3 className="font-medium text-sm mb-2 min-h-[1.25rem] line-clamp-1 truncate">
-            {product.name || "No name"}
+            {product.name}
           </h3>
         ) : (
           <Link href={productUrl} className="block">
             <h3 className="font-medium text-sm mb-2 min-h-[1.25rem] line-clamp-1 truncate group-hover:text-destructive transition-colors duration-200 ease-in-out cursor-pointer">
-              {product.name || "No name"}
+              {product.name}
             </h3>
           </Link>
         )}

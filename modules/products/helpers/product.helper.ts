@@ -1,4 +1,4 @@
-import { Product, ProductImage, ProductVariant } from "../types";
+import { Product, ProductDetail, ProductImage, ProductVariant } from "../types";
 
 export function getAvailableSizesForColor(
   variants: ProductVariant[],
@@ -90,7 +90,7 @@ export function getColorButtonData(
   selectedSize: string | null,
   getAvailableColors: (sizeName: string) => string[]
 ): ColorButtonData {
-  const colorObj = getVariantColorByCode(product.variants, colorCode);
+  const colorObj = getVariantColorByCode(product.variants || [], colorCode);
   const isAvailable = selectedSize
     ? getAvailableColors(selectedSize).includes(colorCode)
     : true;
@@ -111,7 +111,7 @@ export function getSizeButtonData(
   selectedColor: string | null,
   getAvailableSizes: (colorCode: string) => string[]
 ): SizeButtonData {
-  const sizeObj = getVariantSizeByName(product.variants, sizeName);
+  const sizeObj = getVariantSizeByName(product.variants || [], sizeName);
   const isAvailable = selectedColor
     ? getAvailableSizes(selectedColor).includes(sizeName)
     : true;
@@ -174,7 +174,7 @@ export function getProductImageAlt(image: ProductImage, index: number, prefix: s
   return `${prefix} ${index + 1} của sản phẩm`;
 }
 
-export function prepareProductImages(product: Product): ProductImage[] {
+export function prepareProductImages(product: ProductDetail): ProductImage[] {
   if (product.images && product.images.length > 0) {
     return product.images.map(img => ({
       ...img,
@@ -212,6 +212,6 @@ export function getVariantButtonClassName(isSelected: boolean): string {
   const baseClasses = "px-3 py-2 border-1 bg-transparent text-black text-sm font-medium transition-colors";
   const selectedClasses = "border-black hover:bg-transparent";
   const unselectedClasses = "border-gray-300 hover:border-black hover:bg-transparent";
-  
+
   return `${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`;
 }

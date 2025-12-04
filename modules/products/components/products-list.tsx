@@ -36,7 +36,7 @@ export function ProductsList({
     return (
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {[...Array(8)].map((_, i) => (
-          <XSkeletonProduct key={`skeleton-${i}`} />
+          <XSkeletonProduct key={`initial-skeleton-${i}`} />
         ))}
       </div>
     );
@@ -55,13 +55,13 @@ export function ProductsList({
         {isLoading && (
           <>
             {[...Array(4)].map((_, i) => (
-              <XSkeletonProduct key={`skeleton-${i}`} />
+              <XSkeletonProduct key={`loading-skeleton-${i}`} />
             ))}
           </>
         )}
       </div>
 
-      {products.length > 0 && (
+      {products.length > 0 && !isLoading && (
         <XLoadMore
           onLoadMore={handleLoadMore}
           isLoading={isLoading}

@@ -1,26 +1,25 @@
-import { Category } from "@/lib/types/category-group.type";
+import { ProductVariant } from "./product-variant.type";
 import { ProductImage } from "./product-image.type";
-import { ProductVariant, VariantType } from "./product-variant.type";
+import { Category } from "@/lib/types/category-group.type";
 
 export interface Product {
   id: string;
   name: string;
-  nameVi?: string;
-  nameEn?: string;
-  nameKm?: string;
+  thumbnailUrl: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   slug: string;
-  description: string;
-  stock: number;
-  originalPrice: number;
-  salePrice: number;
-  discountPercent: number;
-  category: Category;
-  variantType: VariantType;
-  variants: ProductVariant[];
-  thumbnailUrl?: string;
-  thumbnailId?: string;
-  images: ProductImage[];
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  stock?: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercent?: number;
+  variants?: ProductVariant[];
 }
 
+export interface ProductDetail extends Product {
+  thumbnailId?: string;
+  description?: string;
+  images?: ProductImage[];
+  category?: Category;
+}

@@ -10,12 +10,11 @@ export enum VariantType {
 
 export interface ProductVariant {
   id: string;
-  size: Size;
-  color: Color;
-  stock: number;
-  originalPrice: number;
+  size?: Size;
+  color?: Color;
+  stock?: number;
+  originalPrice?: number;
   discountPercent?: number;
   salePrice?: number;
-  variantType?: string;
+  variantType?: VariantType;
 }
-

@@ -86,7 +86,7 @@ export default async function sitemap() {
       for (const product of products) {
         sitemapEntries.push({
           url: `${baseUrl}/${locale}/products/${product.slug}`,
-          lastModified: new Date(product.updatedAt || Date.now()),
+          lastModified: new Date(Date.now()),
           changeFrequency: "weekly" as const,
           priority: 0.6,
           alternates: {

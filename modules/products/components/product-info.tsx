@@ -1,23 +1,23 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { ShoppingCart } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { XButton, XQuantity } from "@/components/common";
-import { useProductVariant, useAddToCart } from "../hooks";
+import { parseHTML } from "@/lib/utils/sanitize.utils";
 import {
+  filterValidColors,
+  filterValidSizes,
   getColorButtonData,
   getSizeButtonData,
+  getVariantButtonClassName,
   hasNonNoneVariants,
   hasValidColors,
   hasValidSizes,
-  filterValidColors,
-  filterValidSizes,
-  getVariantButtonClassName,
 } from "../helpers";
+import { useAddToCart, useProductVariant } from "../hooks";
+import { ProductDetail } from "../types";
 import { ProductPriceDisplay } from "./product-price-display";
-import { parseHTML } from "@/lib/utils/sanitize.utils";
-import { Product } from "../types";
 
 interface ProductDescriptionProps {
   description: string;
@@ -39,7 +39,7 @@ function ProductDescription({ description }: ProductDescriptionProps) {
 }
 
 interface ProductInfoProps {
-  product: Product;
+  product: ProductDetail;
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
@@ -150,7 +150,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
               max={currentStock || 99}
             />
             <p className="text-sm text-gray-600">
-              {t("stockRemaining", { count: currentStock })}
+              {t("stockRemaining", { count: currentStock ?? 0 })}
             </p>
           </div>
         </div>

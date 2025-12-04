@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { QUERY_KEYS } from "@/lib/constants";
 import { productService } from "@/lib/services/product.service";
 import { PaginationMeta, ApiResponse } from "@/lib/types";
@@ -26,6 +26,11 @@ export function useLoadMoreProducts({
 }: UseLoadMoreProductsParams) {
   const toast = useToast();
   const t = useTranslations("product");
+
+  const productsArray = useMemo(
+    () => (Array.isArray(initialProducts) ? initialProducts : []),
+    [initialProducts]
+  );
 
   const queryKey = [
     QUERY_KEYS.PRODUCTS,
@@ -69,11 +74,11 @@ export function useLoadMoreProducts({
       }
       return undefined;
     },
-    initialData: initialProducts.length > 0
+    initialData: productsArray.length > 0
       ? {
         pages: [
           {
-            data: initialProducts,
+            data: productsArray,
             meta: initialMeta,
             message: "",
             status: "success" as const,
@@ -93,33 +98,17 @@ export function useLoadMoreProducts({
     }
   }, [error, toast, t]);
 
-  const [uniqueProducts, setUniqueProducts] = useState<Product[]>(() => {
-    const productMap = new Map<string, Product>();
-    initialProducts.forEach((product) => {
-      productMap.set(product.id, product);
-    });
-    return Array.from(productMap.values());
-  });
-
-  useEffect(() => {
+  const uniqueProducts = useMemo(() => {
     const allProducts = data?.pages
       ? data.pages.flatMap((page: ApiResponse<Product[]>) => page.data || [])
-      : initialProducts;
+      : productsArray;
 
     const productMap = new Map<string, Product>();
     allProducts.forEach((product) => {
       productMap.set(product.id, product);
     });
-    const newUniqueProducts = Array.from(productMap.values());
-
-    setUniqueProducts((prevProducts) => {
-      if (newUniqueProducts.length !== prevProducts.length) {
-        return newUniqueProducts;
-      }
-      const hasChanged = newUniqueProducts.some((p, i) => p.id !== prevProducts[i]?.id);
-      return hasChanged ? newUniqueProducts : prevProducts;
-    });
-  }, [data?.pages, initialProducts]);
+    return Array.from(productMap.values());
+  }, [data?.pages, productsArray]);
 
   const hasMore =
     hasNextPage ??

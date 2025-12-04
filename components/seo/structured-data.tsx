@@ -128,7 +128,6 @@ export function ProductStructuredData({
   locale,
 }: ProductStructuredDataProps) {
   const imageUrl =
-    product.images?.[0]?.file?.url ||
     product.thumbnailUrl ||
     `${baseUrl}/og-image.jpg`;
   const fullImageUrl = imageUrl.startsWith("http")
@@ -136,7 +135,7 @@ export function ProductStructuredData({
     : `${baseUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
   const productUrl = `${baseUrl}/${locale}/products/${product.slug}`;
   const availability =
-    product.stock > 0
+    product.stock && product.stock > 0
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
 
@@ -144,7 +143,6 @@ export function ProductStructuredData({
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description || product.name,
     image: fullImageUrl,
     sku: product.id,
     mpn: product.id,
@@ -156,16 +154,16 @@ export function ProductStructuredData({
       "@type": "Offer",
       url: productUrl,
       priceCurrency: "VND",
-      price: product.salePrice || product.originalPrice,
+      price: product.salePrice ?? product.originalPrice,
       priceValidUntil: new Date(
         Date.now() + 365 * 24 * 60 * 60 * 1000
       ).toISOString(),
       availability: availability,
       itemCondition: "https://schema.org/NewCondition",
-      ...(product.originalPrice > (product.salePrice || product.originalPrice) && {
+      ...(product.originalPrice && product.salePrice && product.originalPrice > product.salePrice && {
         priceSpecification: {
           "@type": "UnitPriceSpecification",
-          price: product.salePrice || product.originalPrice,
+          price: product.salePrice ?? product.originalPrice,
           priceCurrency: "VND",
           referenceQuantity: {
             "@type": "QuantitativeValue",
@@ -175,9 +173,6 @@ export function ProductStructuredData({
         },
       }),
     },
-    ...(product.category && {
-      category: product.category.nameVi || product.category.nameEn || "",
-    }),
   };
 
   return <StructuredData data={data} />;
@@ -224,6 +219,8 @@ export function CollectionStructuredData({
   baseUrl,
   locale,
 }: CollectionStructuredDataProps) {
+  const productsArray = Array.isArray(products) ? products : [];
+
   const data = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -232,8 +229,8 @@ export function CollectionStructuredData({
     url,
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: products.length,
-      itemListElement: products.slice(0, 10).map((product, index) => ({
+      numberOfItems: productsArray.length,
+      itemListElement: productsArray.slice(0, 10).map((product, index) => ({
         "@type": "ListItem",
         position: index + 1,
         item: {
@@ -241,7 +238,6 @@ export function CollectionStructuredData({
           name: product.name,
           url: `${baseUrl}/${locale}/products/${product.slug}`,
           image:
-            product.images?.[0]?.file?.url ||
             product.thumbnailUrl ||
             `${baseUrl}/og-image.jpg`,
         },

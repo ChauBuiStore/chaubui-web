@@ -64,13 +64,6 @@ export function CheckoutFailedPage() {
                 {t("viewCart")}
               </Link>
             </XButton>
-
-            <XButton asChild className="w-full sm:w-auto min-w-[200px]">
-              <Link href={ROUTER.CHECKOUT}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {t("tryAgain")}
-              </Link>
-            </XButton>
           </div>
         </div>
 

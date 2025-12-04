@@ -22,7 +22,7 @@ export function ProductSection({ id, title }: ProductSectionProps) {
 			<h2 id={`${id}-heading`} className="text-2xl font-bold py-4">{title}</h2>
 			{isLoading ? (
 				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-					{[...Array(5)].map((_, i) => (
+					{[...Array(8)].map((_, i) => (
 						<XSkeletonProduct key={`skeleton-${i}`} />
 					))}
 				</div>

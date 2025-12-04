@@ -81,11 +81,8 @@ export function SearchAutocomplete({
                   }`}
               >
                 <Image
-                  src={product.thumbnailUrl || product.images[0].file.url}
-                  alt={`${product.name} - ${product.category?.nameVi ||
-                    product.category?.nameEn ||
-                    "Sản phẩm"
-                    }`}
+                  src={product.thumbnailUrl || "/placeholder.jpg"}
+                  alt={`${product.name}`}
                   fill
                   className="object-cover rounded-md"
                   sizes={isMobile ? "40px" : "48px"}
@@ -103,29 +100,29 @@ export function SearchAutocomplete({
                     }`}
                 >
                   <span
-                    className={`font-semibold ${product.originalPrice > product.salePrice
-                        ? "text-red-600"
-                        : "text-gray-900"
+                    className={`font-semibold ${product.originalPrice && product.salePrice && product.originalPrice > product.salePrice
+                      ? "text-red-600"
+                      : "text-gray-900"
                       } ${isMobile ? "text-xs" : "text-sm"}`}
                   >
-                    {formatPrice(product.salePrice)}
+                    {formatPrice(product.salePrice ?? 0)}
                   </span>
-                  {product.originalPrice > product.salePrice && (
+                  {product.originalPrice && product.salePrice && product.originalPrice > product.salePrice && (
                     <>
                       <span
                         className={`text-gray-500 line-through ${isMobile ? "text-[10px]" : "text-xs"
                           }`}
                       >
-                        {formatPrice(product.originalPrice)}
+                        {formatPrice(product.originalPrice ?? 0)}
                       </span>
-                      {product.discountPercent > 0 && (
+                      {product.discountPercent && product.discountPercent > 0 && (
                         <span
                           className={`bg-red-100 text-red-600 rounded ${isMobile
-                              ? "text-[10px] px-1 py-0.5"
-                              : "text-xs px-1"
+                            ? "text-[10px] px-1 py-0.5"
+                            : "text-xs px-1"
                             }`}
                         >
-                          -{product.discountPercent}%
+                          -{product.discountPercent ?? 0}%
                         </span>
                       )}
                     </>
