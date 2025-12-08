@@ -15,8 +15,13 @@ export const size = {
 export const contentType = 'image/png';
 
 const getCachedProduct = cache(async (productSlug: string, locale: string) => {
-  const productDetailResponse = await productService.getProductById(productSlug, locale);
-  return productDetailResponse.data ?? null;
+  try {
+    const productDetailResponse = await productService.getProductById(productSlug, locale);
+    return productDetailResponse.data ?? null;
+  } catch (error) {
+    console.error(`Error fetching product ${productSlug} for locale ${locale}:`, error);
+    return null;
+  }
 });
 
 export default async function Image({
@@ -24,13 +29,21 @@ export default async function Image({
 }: {
   params: Promise<{ productSlug: string; locale: string }>;
 }) {
-  const { productSlug, locale } = await params;
-  const t = await getTranslations({ locale });
-
-  const siteName = t('seo.siteName');
-  const baseUrl = APP_CONFIG.baseUrl;
+  let siteName = "Livin N Decoration";
 
   try {
+    const { productSlug, locale } = await params;
+    let t: Awaited<ReturnType<typeof getTranslations>>;
+
+    try {
+      t = await getTranslations({ locale });
+      siteName = t('seo.siteName');
+    } catch (error) {
+      console.error("Error loading translations for OG image:", error);
+    }
+
+    const baseUrl = APP_CONFIG.baseUrl;
+
     const productDetail = await getCachedProduct(productSlug, locale);
 
     if (!productDetail) {
