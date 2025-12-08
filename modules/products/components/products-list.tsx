@@ -18,7 +18,7 @@ export function ProductsList({
   locale,
 }: ProductsListProps) {
   const t = useTranslations('product');
-  const { products, isLoading, hasMore, handleLoadMore } = useLoadMoreProducts({
+  const { products, isLoading, hasMore, handleLoadMore, loadMoreRef } = useLoadMoreProducts({
     initialProducts,
     initialMeta,
     locale,
@@ -63,6 +63,7 @@ export function ProductsList({
 
       {products.length > 0 && !isLoading && (
         <XLoadMore
+          ref={loadMoreRef}
           onLoadMore={handleLoadMore}
           isLoading={isLoading}
           hasMore={hasMore}

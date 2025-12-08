@@ -3,6 +3,7 @@ import { QUERY_KEYS } from "@/lib/constants";
 import { productService } from "@/lib/services/product.service";
 import { Product } from "@/modules/products/types";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 interface ProductSectionProps {
 	id: string;
@@ -10,6 +11,7 @@ interface ProductSectionProps {
 }
 
 export function ProductSection({ id, title }: ProductSectionProps) {
+	const t = useTranslations('product');
 	const { data: productsResponse, isLoading } = useQuery({
 		queryKey: [QUERY_KEYS.PRODUCTS, id],
 		queryFn: () => productService.getProducts({ limit: 8 }),
@@ -25,6 +27,10 @@ export function ProductSection({ id, title }: ProductSectionProps) {
 					{[...Array(8)].map((_, i) => (
 						<XSkeletonProduct key={`skeleton-${i}`} />
 					))}
+				</div>
+			) : products.length === 0 ? (
+				<div className="text-center py-16 md:py-24">
+					<p className="text-gray-500 text-lg">{t('noProductsFound')}</p>
 				</div>
 			) : (
 				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">

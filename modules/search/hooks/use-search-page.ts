@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect, startTransition } from "react";
 import { useSearchParams } from "@/lib/hooks";
 import { usePathname } from "@/lib/i18n/routing";
 import { useRouter } from "@/lib/i18n/routing";
@@ -12,9 +12,11 @@ export function useSearchPage(initialSearch: string) {
     (filters.search as string) || initialSearch || ""
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (initialSearch !== inputValue) {
-      setInputValue(initialSearch || "");
+      startTransition(() => {
+        setInputValue(initialSearch || "");
+      });
     }
   }, [initialSearch, inputValue]);
 

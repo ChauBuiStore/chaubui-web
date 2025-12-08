@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { forwardRef, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -60,10 +61,12 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
     },
     ref,
   ) => {
+    const router = useRouter();
+    
     const handleItemClick = (item: XDropdownMenuItem) => {
       if (item.disabled) return;
       if (item.href) {
-        window.location.href = item.href;
+        router.push(item.href);
       } else if (item.onClick) {
         item.onClick();
       }

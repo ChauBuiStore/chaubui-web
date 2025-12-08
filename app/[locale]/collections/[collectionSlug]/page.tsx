@@ -63,11 +63,18 @@ type TransformCategoryWithGroup = Omit<TransformCategory, "group"> & {
 };
 
 const getCachedCategoryGroups = cache(async (locale: string) => {
-  const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
-    { isAll: true },
-    locale
-  );
-  return categoryGroupsResponse.data || [];
+  try {
+    const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
+      { isAll: true },
+      locale
+    );
+    return categoryGroupsResponse.data || [];
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(`Error fetching category groups for locale ${locale}:`, error);
+    }
+    return [];
+  }
 });
 
 function createLookupMaps(
@@ -242,7 +249,15 @@ export default async function CollectionSlugPageRoot({
     productParams.categoryGroupSlug = collectionSlug;
   }
 
-  const productsResponse = await productService.getProducts(productParams);
+  let productsResponse;
+  try {
+    productsResponse = await productService.getProducts(productParams);
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error(`Error fetching products for collection ${collectionSlug} (locale ${locale}):`, error);
+    }
+    productsResponse = { data: [], meta: null, status: "error" as const, statusCode: 500, message: "Failed to load products" };
+  }
 
   const products = productsResponse.data || [];
   const meta = productsResponse.meta || {

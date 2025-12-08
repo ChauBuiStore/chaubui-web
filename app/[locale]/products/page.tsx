@@ -83,7 +83,12 @@ export default async function ProductsPageRoot({
   const { locale } = await params;
 
   const [productsResponse, t] = await Promise.all([
-    productService.getProducts({ locale, page: 1, limit: 12 }),
+    productService.getProducts({ locale, page: 1, limit: 12 }).catch((error) => {
+      if (process.env.NODE_ENV === "development") {
+        console.error(`Error fetching products for locale ${locale}:`, error);
+      }
+      return { data: [], meta: null, status: "error" as const, statusCode: 500, message: "Failed to load products" };
+    }),
     getTranslations({ locale }),
   ]);
 
@@ -123,7 +128,7 @@ export default async function ProductsPageRoot({
       <XPage breadcrumbItems={uiBreadcrumbItems} aria-label={t("menu.allProducts")}>
         <ProductPage
           products={products}
-          meta={meta}
+          meta={meta ?? undefined}
           locale={locale}
         />
       </XPage>

@@ -162,8 +162,19 @@ async function fetchWithTimeout(
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Request timeout");
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        throw new Error(`Request timeout after ${timeout}ms`);
+      }
+      const errorMessage = error.message.toLowerCase();
+      if (errorMessage.includes("fetch failed") ||
+        errorMessage.includes("econnrefused") ||
+        errorMessage.includes("enotfound") ||
+        errorMessage.includes("etimedout") ||
+        errorMessage.includes("networkerror") ||
+        errorMessage.includes("failed to fetch")) {
+        throw new Error(`Network error: Unable to connect to ${url}. Please check your API server is running and NEXT_PUBLIC_API_BASE_URL is configured correctly.`);
+      }
     }
     throw error;
   }
@@ -186,20 +197,47 @@ function createFetcher(config: FetcherConfig): FetcherInstance {
     const { params: _params, token: _token, ...fetchOptions } = options;
     const timeout = fetcherConfig.timeout ?? DEFAULT_TIMEOUT;
 
-    const response = await fetchWithTimeout(url, { ...fetchOptions, headers }, timeout);
+    try {
+      const response = await fetchWithTimeout(url, { ...fetchOptions, headers }, timeout);
 
-    if (!response.ok) {
-      const errorData = await parseErrorFromResponse(response);
+      if (!response.ok) {
+        const errorData = await parseErrorFromResponse(response);
 
-      if (response.status === 401) {
-        handleUnauthorized(fetcherConfig);
-        throw new Error(errorData.message || "Unauthorized");
+        if (response.status === 401) {
+          handleUnauthorized(fetcherConfig);
+          throw new Error(errorData.message || "Unauthorized");
+        }
+
+        throw new Error(errorData.message || "Request failed");
       }
 
-      throw new Error(errorData.message || "Request failed");
+      return parseSuccessResponse<T>(response);
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (
+          errorMessage.includes("network error") ||
+          errorMessage.includes("fetch failed") ||
+          errorMessage.includes("econnrefused") ||
+          errorMessage.includes("enotfound") ||
+          errorMessage.includes("etimedout") ||
+          errorMessage.includes("networkerror") ||
+          errorMessage.includes("failed to fetch") ||
+          errorMessage.includes("request timeout")
+        ) {
+          if (process.env.NODE_ENV === "development") {
+            console.warn(`Network error for ${url}:`, error.message);
+          }
+          return {
+            message: "Network error",
+            status: "error" as const,
+            statusCode: 0,
+            data: undefined as T,
+          };
+        }
+      }
+      throw error;
     }
-
-    return parseSuccessResponse<T>(response);
   }
 
   async function get<T>(
@@ -236,29 +274,56 @@ function createFetcher(config: FetcherConfig): FetcherInstance {
     const { params: _params, token: _token, ...fetchOptions } = options || {};
     const timeout = fetcherConfig.timeout ?? DEFAULT_TIMEOUT;
 
-    const response = await fetchWithTimeout(
-      url,
-      {
-        ...fetchOptions,
-        method: "POST",
-        body: formData,
-        headers,
-      },
-      timeout,
-    );
+    try {
+      const response = await fetchWithTimeout(
+        url,
+        {
+          ...fetchOptions,
+          method: "POST",
+          body: formData,
+          headers,
+        },
+        timeout,
+      );
 
-    if (!response.ok) {
-      const errorData = await parseErrorFromResponse(response);
+      if (!response.ok) {
+        const errorData = await parseErrorFromResponse(response);
 
-      if (response.status === 401) {
-        handleUnauthorized(fetcherConfig);
-        throw new Error(errorData.message || "Unauthorized");
+        if (response.status === 401) {
+          handleUnauthorized(fetcherConfig);
+          throw new Error(errorData.message || "Unauthorized");
+        }
+
+        throw new Error(errorData.message || "Request failed");
       }
 
-      throw new Error(errorData.message || "Request failed");
+      return parseSuccessResponse<T>(response);
+    } catch (error) {
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (
+          errorMessage.includes("network error") ||
+          errorMessage.includes("fetch failed") ||
+          errorMessage.includes("econnrefused") ||
+          errorMessage.includes("enotfound") ||
+          errorMessage.includes("etimedout") ||
+          errorMessage.includes("networkerror") ||
+          errorMessage.includes("failed to fetch") ||
+          errorMessage.includes("request timeout")
+        ) {
+          if (process.env.NODE_ENV === "development") {
+            console.warn(`Network error for ${url}:`, error.message);
+          }
+          return {
+            message: "Network error",
+            status: "error" as const,
+            statusCode: 0,
+            data: undefined as T,
+          };
+        }
+      }
+      throw error;
     }
-
-    return parseSuccessResponse<T>(response);
   }
 
   async function put<T>(

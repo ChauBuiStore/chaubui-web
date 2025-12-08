@@ -6,7 +6,6 @@ import { useEffect } from "react";
 
 export default function GlobalError({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
@@ -19,7 +18,7 @@ export default function GlobalError({
     <html lang="en">
       <body>
         <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="max-w-md w-full text-center">
+          <div className="max-w-lg w-full text-center">
             <h1 className="text-2xl font-semibold mb-2">Đã xảy ra lỗi</h1>
             <p className="text-muted-foreground mb-6">
               Rất tiếc, có sự cố không mong muốn vừa xảy ra. Vui lòng thử lại.

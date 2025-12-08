@@ -139,6 +139,9 @@ export function ProductStructuredData({
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
 
+  const priceValidUntilDate = new Date();
+  priceValidUntilDate.setFullYear(priceValidUntilDate.getFullYear() + 1);
+
   const data = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -155,9 +158,7 @@ export function ProductStructuredData({
       url: productUrl,
       priceCurrency: "VND",
       price: product.salePrice ?? product.originalPrice,
-      priceValidUntil: new Date(
-        Date.now() + 365 * 24 * 60 * 60 * 1000
-      ).toISOString(),
+      priceValidUntil: priceValidUntilDate.toISOString(),
       availability: availability,
       itemCondition: "https://schema.org/NewCondition",
       ...(product.originalPrice && product.salePrice && product.originalPrice > product.salePrice && {

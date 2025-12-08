@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { QUERY_KEYS } from "@/lib/constants";
 import { productService } from "@/lib/services/product.service";
 import { PaginationMeta, ApiResponse } from "@/lib/types";
@@ -26,6 +26,7 @@ export function useLoadMoreProducts({
 }: UseLoadMoreProductsParams) {
   const toast = useToast();
   const t = useTranslations("product");
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const productsArray = useMemo(
     () => (Array.isArray(initialProducts) ? initialProducts : []),
@@ -108,7 +109,7 @@ export function useLoadMoreProducts({
       productMap.set(product.id, product);
     });
     return Array.from(productMap.values());
-  }, [data?.pages, productsArray]);
+  }, [data, productsArray]);
 
   const hasMore =
     hasNextPage ??
@@ -118,7 +119,9 @@ export function useLoadMoreProducts({
 
   const handleLoadMore = async () => {
     if (!hasMore || isFetchingNextPage) return;
+
     await fetchNextPage();
+
   };
 
   return {
@@ -126,6 +129,7 @@ export function useLoadMoreProducts({
     isLoading: isLoading || isFetchingNextPage,
     hasMore,
     handleLoadMore,
+    loadMoreRef,
   };
 }
 

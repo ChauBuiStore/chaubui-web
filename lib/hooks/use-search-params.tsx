@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, startTransition } from "react";
 
 interface FilterState {
   [key: string]: string | string[] | number | undefined;
@@ -16,8 +16,10 @@ export function useSearchParams(initial: FilterState = {}) {
   const isUpdatingFromUser = useRef(false);
   const initialRef = useRef(initial);
 
-  useEffect(() => {
-    setIsHydrated(true);
+  useLayoutEffect(() => {
+    startTransition(() => {
+      setIsHydrated(true);
+    });
   }, []);
 
   useEffect(() => {

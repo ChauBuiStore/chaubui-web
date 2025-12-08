@@ -4,28 +4,30 @@ import { XButton, XPage } from "@/components/common";
 import { ROUTER } from "@/lib/constants";
 import { useTranslations } from "@/lib/hooks";
 import { CHECKOUT_ERROR_STORAGE_KEY } from "../../helpers";
-import { AlertCircle, ArrowLeft, Phone, ShoppingCart } from "lucide-react";
+import { AlertCircle, Phone, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState, startTransition } from "react";
 
 export function CheckoutFailedPage() {
   const t = useTranslations("checkoutFailed");
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const error = searchParams.get("error");
     const storedError = localStorage.getItem(CHECKOUT_ERROR_STORAGE_KEY);
 
-    if (error) {
-      setErrorMessage(error);
-    } else if (storedError) {
-      setErrorMessage(storedError);
-      localStorage.removeItem(CHECKOUT_ERROR_STORAGE_KEY);
-    } else {
-      setErrorMessage(t("defaultError"));
-    }
+    startTransition(() => {
+      if (error) {
+        setErrorMessage(error);
+      } else if (storedError) {
+        setErrorMessage(storedError);
+        localStorage.removeItem(CHECKOUT_ERROR_STORAGE_KEY);
+      } else {
+        setErrorMessage(t("defaultError"));
+      }
+    });
   }, [searchParams, t]);
 
   return (

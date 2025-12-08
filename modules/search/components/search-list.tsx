@@ -20,12 +20,20 @@ export function SearchList({
   locale,
 }: SearchListProps) {
   const t = useTranslations('product');
-  const { products, isLoading, hasMore, handleLoadMore } = useLoadMoreProducts({
+  const { products, isLoading, hasMore, handleLoadMore, loadMoreRef } = useLoadMoreProducts({
     initialProducts,
     initialMeta,
         locale,
     searchQuery,
   });
+
+  if (products.length === 0 && !isLoading) {
+    return (
+      <div className="text-center py-16 md:py-24">
+        <p className="text-gray-500 text-lg">{t('noProductsFound')}</p>
+      </div>
+    );
+  }
 
   if (products.length === 0 && isLoading) {
     return (
@@ -58,6 +66,7 @@ export function SearchList({
 
       {products.length > 0 && (
         <XLoadMore
+          ref={loadMoreRef}
           onLoadMore={handleLoadMore}
           isLoading={isLoading}
           hasMore={hasMore}

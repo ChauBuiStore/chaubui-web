@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState, startTransition } from "react";
 import { Product, ProductVariant } from "../types";
 import { getAvailableSizesForColor, getAvailableColorsForSize, findVariantByColorAndSize } from "../helpers";
 
@@ -13,7 +13,7 @@ export function useProductVariant(product: Product) {
   const currentStock = selectedVariant?.stock ?? product.stock;
   const isOutOfStock = currentStock === 0 || currentStock === undefined || currentStock === null;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (product?.variants?.length) {
       const colors = new Set<string>();
       const sizes = new Set<string>();
@@ -27,28 +27,34 @@ export function useProductVariant(product: Product) {
         }
       });
 
-      setAvailableColors(Array.from(colors));
-      setAvailableSizes(Array.from(sizes));
+      startTransition(() => {
+        setAvailableColors(Array.from(colors));
+        setAvailableSizes(Array.from(sizes));
+      });
     } else {
-      setAvailableColors([]);
-      setAvailableSizes([]);
+      startTransition(() => {
+        setAvailableColors([]);
+        setAvailableSizes([]);
+      });
     }
   }, [product]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (product?.variants?.length) {
       const firstVariant = product.variants[0];
-      setSelectedVariant(firstVariant);
-      if (firstVariant.color?.code && firstVariant.color.code.trim() !== "") {
-        setSelectedColor(firstVariant.color.code);
-      }
-      if (firstVariant.size?.name && firstVariant.size.name.trim() !== "") {
-        setSelectedSize(firstVariant.size.name);
-      }
+      startTransition(() => {
+        setSelectedVariant(firstVariant);
+        if (firstVariant.color?.code && firstVariant.color.code.trim() !== "") {
+          setSelectedColor(firstVariant.color.code);
+        }
+        if (firstVariant.size?.name && firstVariant.size.name.trim() !== "") {
+          setSelectedSize(firstVariant.size.name);
+        }
+      });
     }
   }, [product]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (product?.variants) {
       const variant = findVariantByColorAndSize(
         product.variants,
@@ -57,13 +63,17 @@ export function useProductVariant(product: Product) {
       );
 
       if (variant) {
-        setSelectedVariant(variant);
+        startTransition(() => {
+          setSelectedVariant(variant);
+        });
       }
     }
   }, [product, selectedColor, selectedSize]);
 
-  useEffect(() => {
-    setQuantity(1);
+  useLayoutEffect(() => {
+    startTransition(() => {
+      setQuantity(1);
+    });
   }, [selectedColor, selectedSize]);
 
   const getAvailableSizes = (colorCode: string) => {

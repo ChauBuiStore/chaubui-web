@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { ShoppingBasket, ShoppingCart, X } from "lucide-react";
 import { useLocale } from "next-intl";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTER } from "@/lib/constants";
 import { cartSelectors, useCartStore } from "@/lib/stores";
@@ -46,15 +46,19 @@ export function CartHeader() {
   const hasHydratedValue = Boolean(hasHydrated);
   const isEmptyValue = Boolean(isEmpty);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isEmptyValue) {
-      setOpen(false);
+      startTransition(() => {
+        setOpen(false);
+      });
     }
   }, [isEmptyValue]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (shouldOpenPopoverValue && hasHydratedValue && !isEmptyValue) {
-      setOpen(true);
+      startTransition(() => {
+        setOpen(true);
+      });
       useCartStore.getState().setShouldOpenPopover(false);
     }
   }, [shouldOpenPopoverValue, hasHydratedValue, isEmptyValue]);

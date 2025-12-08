@@ -20,6 +20,7 @@ import { ROUTER } from "@/lib/constants";
 import { categoryGroupService } from "@/lib/services/category-group.service";
 import type { MenuItem, TransformedCategoryGroup } from "@/lib/types";
 import { truncateTitle, truncateDescription } from "@/lib/utils";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -139,11 +140,6 @@ export default async function RootLayout({
   const messages = await getMessages();
   const t = await getTranslations({ locale });
 
-  const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
-    undefined,
-    locale
-  );
-
   const homeItem: MenuItem = {
     title: t("menu.home"),
     href: ROUTER.HOME,
@@ -156,13 +152,24 @@ export default async function RootLayout({
 
   let menuItems: MenuItem[] = [homeItem, allProductsItem];
 
-  if (categoryGroupsResponse.data) {
-    const transformedData =
-      categoryGroupsResponse.data as TransformedCategoryGroup[];
-    const categoryMenuItems = transformCategoryGroupsToMenuItems(
-      transformedData || []
+  try {
+    const categoryGroupsResponse = await categoryGroupService.getCategoryGroups(
+      undefined,
+      locale
     );
-    menuItems = [homeItem, allProductsItem, ...categoryMenuItems];
+
+    if (categoryGroupsResponse.data) {
+      const transformedData =
+        categoryGroupsResponse.data as TransformedCategoryGroup[];
+      const categoryMenuItems = transformCategoryGroupsToMenuItems(
+        transformedData || []
+      );
+      menuItems = [homeItem, allProductsItem, ...categoryMenuItems];
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Failed to load category groups:", error);
+    }
   }
 
   const siteName = t("seo.siteName");
@@ -212,6 +219,7 @@ export default async function RootLayout({
             </CartProvider>
           </NextIntlClientProvider>
         </ReactQueryProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

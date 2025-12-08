@@ -6,7 +6,7 @@ import { useTranslations } from "@/lib/hooks"
 import { loginSelectors, useLoginStore } from "@/lib/stores"
 import { UserRound } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useLayoutEffect, useState, startTransition } from "react"
 import { LoginForm } from "@/modules/auth/components/login-form"
 
 export function AccountGuest() {
@@ -14,9 +14,11 @@ export function AccountGuest() {
   const [open, setOpen] = useState(false)
   const shouldOpen = useLoginStore(loginSelectors.shouldOpen)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (shouldOpen) {
-      setOpen(true)
+      startTransition(() => {
+        setOpen(true)
+      })
       useLoginStore.getState().setShouldOpen(false)
     }
   }, [shouldOpen])

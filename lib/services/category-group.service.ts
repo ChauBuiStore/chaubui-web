@@ -20,11 +20,13 @@ export const categoryGroupService = {
       }
     );
 
-    if (response.data) {
+    if (response.data && Array.isArray(response.data)) {
       response.data = transformLocaleFields(
         response.data,
         currentLocale
       ) as TransformedCategoryGroup[];
+    } else {
+      response.data = [];
     }
 
     return response;

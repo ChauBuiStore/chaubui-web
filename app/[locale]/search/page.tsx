@@ -50,12 +50,19 @@ export default async function SearchPageRoot({
 
   let productsResponse = null;
   if (search && search.trim()) {
-    productsResponse = await productService.getProducts({
-      search: search.trim(),
-      locale,
-      page: 1,
-      limit: 12,
-    });
+    try {
+      productsResponse = await productService.getProducts({
+        search: search.trim(),
+        locale,
+        page: 1,
+        limit: 12,
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(`Error searching products for locale ${locale}:`, error);
+      }
+      productsResponse = null;
+    }
   }
 
   const products = productsResponse?.data || [];
