@@ -41,7 +41,10 @@ export function useProductVariant(product: Product) {
 
   useLayoutEffect(() => {
     if (product?.variants?.length) {
-      const firstVariant = product.variants[0];
+      const activeVariants = product.variants.filter(
+        (v: ProductVariant) => v.isActive ?? true
+      );
+      const firstVariant = activeVariants[0] || product.variants[0];
       startTransition(() => {
         setSelectedVariant(firstVariant);
         if (firstVariant.color?.code && firstVariant.color.code.trim() !== "") {

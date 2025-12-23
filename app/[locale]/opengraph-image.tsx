@@ -15,12 +15,22 @@ export default async function Image({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale });
-
-  const title = t('home.seo.title');
-  const description = t('home.seo.description');
-  const siteName = t('seo.siteName');
+  let title = "Livin N Decoration";
+  let description = "High quality furniture and decor";
+  let siteName = "Livin N Decoration";
+  
+  try {
+    const { locale } = await params;
+    let t: Awaited<ReturnType<typeof getTranslations>>;
+    
+    try {
+      t = await getTranslations({ locale });
+      title = t('home.seo.title');
+      description = t('home.seo.description');
+      siteName = t('seo.siteName');
+    } catch (error) {
+      console.error("Error loading translations for OG image:", error);
+    }
 
   return new ImageResponse(
     (
@@ -86,5 +96,29 @@ export default async function Image({
       ...size,
     }
   );
+  } catch (error) {
+    console.error('Error generating OG image:', error);
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <h1 style={{ fontSize: 48, color: '#0a0a0a' }}>{siteName}</h1>
+          <p style={{ fontSize: 24, color: '#737373', marginTop: 16 }}>{description}</p>
+        </div>
+      ),
+      {
+        ...size,
+      }
+    );
+  }
 }
 

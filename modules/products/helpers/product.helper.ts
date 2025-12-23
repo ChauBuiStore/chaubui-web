@@ -5,7 +5,10 @@ export function getAvailableSizesForColor(
   colorCode: string
 ): string[] {
   return variants
-    .filter((v: ProductVariant) => v.color?.code === colorCode)
+    .filter(
+      (v: ProductVariant) =>
+        v.color?.code === colorCode && (v.isActive ?? true)
+    )
     .map((v: ProductVariant) => v.size?.name || "")
     .filter(Boolean);
 }
@@ -15,7 +18,10 @@ export function getAvailableColorsForSize(
   sizeName: string
 ): string[] {
   return variants
-    .filter((v: ProductVariant) => v.size?.name === sizeName)
+    .filter(
+      (v: ProductVariant) =>
+        v.size?.name === sizeName && (v.isActive ?? true)
+    )
     .map((v: ProductVariant) => v.color?.code || "")
     .filter(Boolean);
 }
@@ -32,19 +38,23 @@ export function findVariantByColorAndSize(
   if (colorCode && sizeName) {
     return variants.find(
       (v: ProductVariant) =>
-        v.color?.code === colorCode && v.size?.name === sizeName
+        v.color?.code === colorCode &&
+        v.size?.name === sizeName &&
+        (v.isActive ?? true)
     );
   }
 
   if (colorCode && !sizeName) {
     return variants.find(
-      (v: ProductVariant) => v.color?.code === colorCode
+      (v: ProductVariant) =>
+        v.color?.code === colorCode && (v.isActive ?? true)
     );
   }
 
   if (sizeName && !colorCode) {
     return variants.find(
-      (v: ProductVariant) => v.size?.name === sizeName
+      (v: ProductVariant) =>
+        v.size?.name === sizeName && (v.isActive ?? true)
     );
   }
 
@@ -90,10 +100,19 @@ export function getColorButtonData(
   selectedSize: string | null,
   getAvailableColors: (sizeName: string) => string[]
 ): ColorButtonData {
-  const colorObj = getVariantColorByCode(product.variants || [], colorCode);
-  const isAvailable = selectedSize
+  const variants = product.variants || [];
+  const colorObj = getVariantColorByCode(variants, colorCode);
+
+  const hasActiveVariantForColor = variants.some(
+    (v: ProductVariant) =>
+      v.color?.code === colorCode && (v.isActive ?? true)
+  );
+
+  const isAvailableBySize = selectedSize
     ? getAvailableColors(selectedSize).includes(colorCode)
     : true;
+
+  const isAvailable = hasActiveVariantForColor && isAvailableBySize;
   const isSelected = selectedColor === colorCode;
 
   return {
@@ -111,10 +130,19 @@ export function getSizeButtonData(
   selectedColor: string | null,
   getAvailableSizes: (colorCode: string) => string[]
 ): SizeButtonData {
-  const sizeObj = getVariantSizeByName(product.variants || [], sizeName);
-  const isAvailable = selectedColor
+  const variants = product.variants || [];
+  const sizeObj = getVariantSizeByName(variants, sizeName);
+
+  const hasActiveVariantForSize = variants.some(
+    (v: ProductVariant) =>
+      v.size?.name === sizeName && (v.isActive ?? true)
+  );
+
+  const isAvailableByColor = selectedColor
     ? getAvailableSizes(selectedColor).includes(sizeName)
     : true;
+
+  const isAvailable = hasActiveVariantForSize && isAvailableByColor;
   const isSelected = selectedSize === sizeName;
 
   return {

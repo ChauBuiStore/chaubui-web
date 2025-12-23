@@ -17,4 +17,5 @@ export interface ProductVariant {
   discountPercent?: number;
   salePrice?: number;
   variantType?: VariantType;
+  isActive?: boolean;
 }

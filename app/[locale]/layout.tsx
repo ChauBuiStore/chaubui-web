@@ -55,12 +55,32 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale });
 
-  const title = truncateTitle(t("seo.title"));
-  const description = truncateDescription(t("seo.description"));
-  const siteName = t("seo.siteName");
-  const url = `${baseUrl}/${locale}`;
+  let t: Awaited<ReturnType<typeof getTranslations>> = ((key: string) => {
+    const fallbacks: Record<string, string> = {
+      "seo.title": "Livin N Decoration",
+      "seo.description": "High quality furniture and decor",
+      "seo.siteName": "Livin N Decoration",
+      "seo.keywords": "furniture, decor, interior, Livin N Decoration",
+    };
+    return fallbacks[key] || key;
+  }) as Awaited<ReturnType<typeof getTranslations>>;
+
+  let title = "Livin N Decoration";
+  let description = "High quality furniture and decor";
+  let siteName = "Livin N Decoration";
+
+  try {
+    try {
+      t = await getTranslations({ locale });
+      title = truncateTitle(t("seo.title"));
+      description = truncateDescription(t("seo.description"));
+      siteName = t("seo.siteName");
+    } catch (error) {
+      console.error("Error loading translations for layout:", error);
+    }
+    
+    const url = `${baseUrl}/${locale}`;
 
   return {
     title,
@@ -118,6 +138,13 @@ export async function generateMetadata({
     },
     manifest: "/manifest.json",
   };
+  } catch (error) {
+    console.error("Error generating metadata for layout:", error);
+    return {
+      title: "Livin N Decoration",
+      description: "High quality furniture and decor",
+    };
+  }
 }
 
 export function generateStaticParams() {

@@ -188,7 +188,6 @@ export default async function ProductSlugPageRoot({
       t = await getTranslations({ locale });
     } catch (error) {
       console.error("Error loading translations for locale:", locale, error);
-      // Fallback translations
       t = ((key: string) => {
         const fallbacks: Record<string, string> = {
           "menu.home": "Trang chủ",

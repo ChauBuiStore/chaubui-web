@@ -18,16 +18,26 @@ interface ProductsPageRootProps {
 export async function generateMetadata({
   params,
 }: ProductsPageRootProps): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale });
+  try {
+    const { locale } = await params;
+    let allProductsTitle = "Tất cả sản phẩm";
+    let siteName = "Livin N Decoration";
+    let descriptionText = "High quality furniture and decor";
+    
+    try {
+      const t = await getTranslations({ locale });
+      allProductsTitle = t("menu.allProducts");
+      siteName = t("seo.siteName");
+      descriptionText = t("seo.description");
+    } catch (error) {
+      console.error("Error loading translations for products page:", error);
+    }
+    
+    const baseUrl = APP_CONFIG.baseUrl;
 
-  const allProductsTitle = t("menu.allProducts");
-  const siteName = t("seo.siteName");
-  const baseUrl = APP_CONFIG.baseUrl;
-
-  const title = truncateTitle(`${allProductsTitle} | ${siteName}`);
-  const description = truncateDescription(t("seo.description"));
-  const url = `${baseUrl}/${locale}${ROUTER.PRODUCT}`;
+    const title = truncateTitle(`${allProductsTitle} | ${siteName}`);
+    const description = truncateDescription(descriptionText);
+    const url = `${baseUrl}/${locale}${ROUTER.PRODUCT}`;
 
   return {
     title,
@@ -75,6 +85,13 @@ export async function generateMetadata({
       },
     },
   };
+  } catch (error) {
+    console.error("Error generating metadata for products page:", error);
+    return {
+      title: "Tất cả sản phẩm | Livin N Decoration",
+      description: "High quality furniture and decor",
+    };
+  }
 }
 
 export default async function ProductsPageRoot({
@@ -89,7 +106,15 @@ export default async function ProductsPageRoot({
       }
       return { data: [], meta: null, status: "error" as const, statusCode: 500, message: "Failed to load products" };
     }),
-    getTranslations({ locale }),
+    getTranslations({ locale }).catch(() => {
+      return ((key: string) => {
+        const fallbacks: Record<string, string> = {
+          "menu.home": "Trang chủ",
+          "menu.allProducts": "Tất cả sản phẩm",
+        };
+        return fallbacks[key] || key;
+      }) as Awaited<ReturnType<typeof getTranslations>>;
+    }),
   ]);
 
   const products = productsResponse.data || [];

@@ -11,62 +11,78 @@ export async function generateMetadata({
     locale: string;
   }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale });
+  try {
+    const { locale } = await params;
+    let t: Awaited<ReturnType<typeof getTranslations>>;
+    let title = "Livin N Decoration";
+    let description = "High quality furniture and decor";
+    let siteName = "Livin N Decoration";
 
-  const title = truncateTitle(t("home.seo.title"));
-  const description = truncateDescription(t("home.seo.description"));
-  const baseUrl = APP_CONFIG.baseUrl;
-  const url = `${baseUrl}/${locale}`;
+    try {
+      t = await getTranslations({ locale });
+      title = truncateTitle(t("home.seo.title"));
+      description = truncateDescription(t("home.seo.description"));
+      siteName = t("seo.siteName");
+    } catch (error) {
+      console.error("Error loading translations for home page:", error);
+    }
 
-  const siteName = t("seo.siteName");
+    const baseUrl = APP_CONFIG.baseUrl;
+    const url = `${baseUrl}/${locale}`;
 
-  return {
-    title,
-    description,
-    openGraph: {
+    return {
       title,
       description,
-      url,
-      type: "website",
-      siteName: siteName,
-      locale: locale,
-      images: [
-        {
-          url: `${baseUrl}/og-image.jpg`,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-    twitter: {
-      title,
-      description,
-      card: "summary_large_image",
-      images: [`${baseUrl}/og-image.jpg`],
-    },
-    alternates: {
-      canonical: url,
-      languages: {
-        vi: `${baseUrl}/vi`,
-        en: `${baseUrl}/en`,
-        km: `${baseUrl}/km`,
-        "x-default": `${baseUrl}/vi`,
+      openGraph: {
+        title,
+        description,
+        url,
+        type: "website",
+        siteName: siteName,
+        locale: locale,
+        images: [
+          {
+            url: `${baseUrl}/og-image.jpg`,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
+      twitter: {
+        title,
+        description,
+        card: "summary_large_image",
+        images: [`${baseUrl}/og-image.jpg`],
+      },
+      alternates: {
+        canonical: url,
+        languages: {
+          vi: `${baseUrl}/vi`,
+          en: `${baseUrl}/en`,
+          km: `${baseUrl}/km`,
+          "x-default": `${baseUrl}/vi`,
+        },
+      },
+      robots: {
         index: true,
         follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
       },
-    },
-  };
+    };
+  } catch (error) {
+    console.error("Error generating metadata for home page:", error);
+    return {
+      title: "Livin N Decoration",
+      description: "High quality furniture and decor",
+    };
+  }
 }
 
 export default function HomePageRoot() {

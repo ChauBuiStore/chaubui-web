@@ -14,21 +14,21 @@ interface SearchPageRootProps {
 
 export async function generateMetadata({
   params,
-  searchParams,
-}: SearchPageRootProps): Promise<Metadata> {
-  const [{ locale }, { search }] = await Promise.all([
-    params,
-    searchParams,
-  ]);
+}: Pick<SearchPageRootProps, "params">): Promise<Metadata> {
+  try {
+    const { locale } = await params;
+    let searchTitle = "Tìm kiếm";
+    let siteName = "Livin N Decoration";
+    
+    try {
+      const t = await getTranslations({ locale });
+      searchTitle = t("menu.search") || "Tìm kiếm";
+      siteName = t("seo.siteName");
+    } catch (error) {
+      console.error("Error loading translations for search page:", error);
+    }
 
-  const t = await getTranslations({ locale });
-
-  const searchTitle = t("menu.search") || "Tìm kiếm";
-  const siteName = t("seo.siteName");
-
-  const title = search
-    ? `${searchTitle}: ${search} | ${siteName}`
-    : `${searchTitle} | ${siteName}`;
+    const title = `${searchTitle} | ${siteName}`;
 
   return {
     title,
@@ -37,6 +37,16 @@ export async function generateMetadata({
       follow: true,
     },
   };
+  } catch (error) {
+    console.error("Error generating metadata for search page:", error);
+    return {
+      title: "Tìm kiếm | Livin N Decoration",
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
 }
 
 export default async function SearchPageRoot({

@@ -107,23 +107,42 @@ export async function generateMetadata({
 }: CollectionSlugPageRootProps): Promise<Metadata> {
   const { collectionSlug, locale } = await params;
 
-  const [categoryGroups, t] = await Promise.all([
-    getCachedCategoryGroups(locale),
-    getTranslations({ locale }),
-  ]);
-
-  const siteName = t("seo.siteName");
-  const baseUrl = APP_CONFIG.baseUrl;
-
-  let collectionName = collectionSlug;
   try {
-    const { categoryGroupMap, categoryMap } = createLookupMaps(categoryGroups);
-    const category = categoryMap.get(collectionSlug);
-    const categoryGroup = categoryGroupMap.get(collectionSlug);
-    collectionName = category?.name || categoryGroup?.name || collectionSlug;
-  } catch (error) {
-    console.error(`Error fetching collection name for ${collectionSlug}:`, error);
-  }
+
+    let categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>> = [];
+    let t: Awaited<ReturnType<typeof getTranslations>> = ((key: string) => {
+      const fallbacks: Record<string, string> = {
+        "seo.siteName": "Livin N Decoration",
+        "seo.description": "High quality furniture and decor",
+      };
+      return fallbacks[key] || key;
+    }) as Awaited<ReturnType<typeof getTranslations>>;
+    let siteName = "Livin N Decoration";
+    
+    try {
+      const [groups, translations] = await Promise.all([
+        getCachedCategoryGroups(locale),
+        getTranslations({ locale }),
+      ]);
+      categoryGroups = groups;
+      t = translations;
+      siteName = t("seo.siteName");
+    } catch (error) {
+      console.error(`Error fetching data for collection ${collectionSlug}:`, error);
+      categoryGroups = await getCachedCategoryGroups(locale).catch(() => []);
+    }
+
+    const baseUrl = APP_CONFIG.baseUrl;
+
+    let collectionName = collectionSlug;
+    try {
+      const { categoryGroupMap, categoryMap } = createLookupMaps(categoryGroups);
+      const category = categoryMap.get(collectionSlug);
+      const categoryGroup = categoryGroupMap.get(collectionSlug);
+      collectionName = category?.name || categoryGroup?.name || collectionSlug;
+    } catch (error) {
+      console.error(`Error fetching collection name for ${collectionSlug}:`, error);
+    }
 
   const title = truncateTitle(`${collectionName} | ${siteName}`);
   const description = truncateDescription(`${collectionName} - ${t("seo.description")}`);
@@ -175,17 +194,41 @@ export async function generateMetadata({
       },
     },
   };
+    } catch (error) {
+      console.error("Error generating metadata for collection:", error);
+      return {
+        title: `${collectionSlug} | Livin N Decoration`,
+        description: "High quality furniture and decor",
+      };
+    }
 }
 
 export default async function CollectionSlugPageRoot({
   params,
 }: CollectionSlugPageRootProps) {
-  const { collectionSlug, locale } = await params;
+  try {
+    const { collectionSlug, locale } = await params;
 
-  const [categoryGroups, t] = await Promise.all([
-    getCachedCategoryGroups(locale),
-    getTranslations({ locale }),
-  ]);
+    let categoryGroups: Awaited<ReturnType<typeof getCachedCategoryGroups>> = [];
+    let t: Awaited<ReturnType<typeof getTranslations>>;
+    
+    try {
+      const [groups, translations] = await Promise.all([
+        getCachedCategoryGroups(locale),
+        getTranslations({ locale }),
+      ]);
+      categoryGroups = groups;
+      t = translations;
+    } catch (error) {
+      console.error(`Error fetching data for collection ${collectionSlug}:`, error);
+      categoryGroups = await getCachedCategoryGroups(locale).catch(() => []);
+      t = ((key: string) => {
+        const fallbacks: Record<string, string> = {
+          "menu.home": "Trang chủ",
+        };
+        return fallbacks[key] || key;
+      }) as Awaited<ReturnType<typeof getTranslations>>;
+    }
 
   const { categoryGroupMap, categoryMap } = createLookupMaps(categoryGroups);
 
@@ -289,4 +332,8 @@ export default async function CollectionSlugPageRoot({
       </XPage>
     </>
   );
+  } catch (error) {
+    console.error("Error rendering collection page:", error);
+    throw error;
+  }
 }
